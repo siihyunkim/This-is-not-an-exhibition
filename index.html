@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>거짓말</title>
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #fff;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+    color: #000;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 32px;
+    background: #fff;
+    z-index: 200;
+  }
+  .nav-title {
+    font-size: 12px;
+    font-weight: 400;
+    letter-spacing: 0.06em;
+  }
+  .nav-detail {
+    font-size: 12px;
+    font-weight: 400;
+    letter-spacing: 0.06em;
+    cursor: pointer;
+    opacity: 0.5;
+    transition: opacity 0.2s;
+  }
+  .nav-detail:hover { opacity: 1; }
+
+  /* ── STAGE ── */
+  #stage {
+    position: fixed;
+    top: 48px;
+    left: 0; right: 0; bottom: 0;
+    user-select: none;
+  }
+
+  /* ── SVG ── */
+  #svg-lines {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+
+  /* ── COLUMN DECORATIONS ── */
+  .col-axis {
+    position: absolute;
+    top: 28px; bottom: 28px;
+    width: 0;
+    transform: translateX(-50%);
+    border-left: 1px dashed #ccc;
+    pointer-events: none;
+  }
+  .col-arrow {
+    position: absolute;
+    color: #999;
+    font-size: 10px;
+    transform: translateX(-50%);
+    pointer-events: none;
+    line-height: 1;
+  }
+  .col-arrow.up { top: 10px; }
+  .col-arrow.dn { bottom: 10px; }
+
+  /* ── ITEMS ── */
+  .item {
+    position: absolute;
+    transform: translateX(-50%) translateY(-50%);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: top 1.5s cubic-bezier(0.65, 0, 0.35, 1);
+    z-index: 10;
+  }
+
+  .item-label {
+    font-size: 10px;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+    color: #000;
+    line-height: 1.5;
+    transition: color 0.4s, opacity 0.4s;
+  }
+
+  .item.active .item-label {
+    color: #000;
+    font-weight: 600;
+  }
+  .item.dimmed .item-label {
+    color: #bbb;
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <span class="nav-title">거짓말</span>
+  <span class="nav-detail">전시 상세</span>
+</nav>
+
+<div id="stage">
+  <svg id="svg-lines"></svg>
+</div>
+
+<script>
+/* ───────────────────────────────
+   DATA
+   마지막 항목(김주현)의 B값은 구글 독스 원본 확인 후 업데이트 해주세요.
+─────────────────────────────── */
+const artists = [
+  { a: "모기",         name: "김세민", b: "예술가" },
+  { a: "캡챠",         name: "여단아", b: "로봇의 메시지" },
+  { a: "건강보조제",   name: "박장호", b: "요약본" },
+  { a: "손씻기",       name: "김민지", b: "비술" },
+  { a: "QR코드",       name: "배유진", b: "자서전" },
+  { a: "입",           name: "김지원", b: "팩스기" },
+  { a: "사거리",       name: "백단하", b: "갤러리" },
+  { a: "슬립오버",     name: "이린",   b: "고해성사" },
+  { a: "커팅매트",     name: "황철호", b: "해시계" },
+  { a: "세탁소",       name: "조서영", b: "화원" },
+  { a: "스틸레토 힐",  name: "정지은", b: "은닉무기" },
+  { a: "라바콘",       name: "김규빈", b: "만병통치약" },
+  { a: "만두",         name: "강다현", b: "암살자" },
+  { a: "주석",         name: "강민서", b: "무단점유자" },
+  { a: "손톱",         name: "이지희", b: "플레이리스트" },
+  { a: "지도",         name: "정우현", b: "시" },
+  { a: "스케이트보드", name: "김주현", b: "—" }, // TODO: B값 확인 필요
+];
+
+const N = artists.length;
+const COL_FRACS = [0.15, 0.50, 0.85];
+const PAD_V = 36;
+
+/* ───────────────────────────────
+   STATE
+─────────────────────────────── */
+let activeIdx = null;
+let prevActiveIdx = -2;
+let stageW = 0, stageH = 0;
+let colX = [];
+
+// pos[col][artistIdx] = y center (px, relative to stage)
+const pos = [new Array(N).fill(0), new Array(N).fill(0), new Array(N).fill(0)];
+
+// DOM
+const itemEls   = [[], [], []];
+let linePathsA  = [], linePathsB  = [];
+let clickPathsA = [], clickPathsB = [];
+
+const stage  = document.getElementById('stage');
+const svgEl  = document.getElementById('svg-lines');
+
+/* ───────────────────────────────
+   UTILS
+─────────────────────────────── */
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+/* ───────────────────────────────
+   LAYOUT
+─────────────────────────────── */
+function computeLayout() {
+  stageW = stage.offsetWidth;
+  stageH = stage.offsetHeight;
+  colX = COL_FRACS.map(f => f * stageW);
+  svgEl.setAttribute('viewBox', `0 0 ${stageW} ${stageH}`);
+  svgEl.setAttribute('width',  stageW);
+  svgEl.setAttribute('height', stageH);
+}
+
+function assignPositions(col, order) {
+  const span = stageH - PAD_V * 2;
+  const step = N > 1 ? span / (N - 1) : 0;
+  order.forEach((artistIdx, rank) => {
+    pos[col][artistIdx] = PAD_V + rank * step;
+  });
+}
+
+/* ───────────────────────────────
+   SHUFFLE A SINGLE COLUMN
+─────────────────────────────── */
+function shuffleCol(col) {
+  const order = shuffle(Array.from({ length: N }, (_, i) => i));
+  assignPositions(col, order);
+  for (let i = 0; i < N; i++) {
+    if (itemEls[col][i]) {
+      itemEls[col][i].style.top = pos[col][i] + 'px';
+    }
+  }
+}
+
+/* ───────────────────────────────
+   INTERACTION
+─────────────────────────────── */
+function setActive(idx) {
+  activeIdx = (activeIdx === idx) ? null : idx;
+  updateStyles();
+}
+
+function updateStyles() {
+  for (let col = 0; col < 3; col++) {
+    for (let i = 0; i < N; i++) {
+      const el = itemEls[col][i];
+      if (!el) continue;
+      el.classList.remove('active', 'dimmed');
+      if (activeIdx !== null) {
+        if (i === activeIdx) el.classList.add('active');
+        else el.classList.add('dimmed');
+      }
+    }
+  }
+}
+
+/* ───────────────────────────────
+   BUILD DOM
+─────────────────────────────── */
+function buildDOM() {
+  stage.querySelectorAll('.item, .col-axis, .col-arrow').forEach(e => e.remove());
+  svgEl.innerHTML = '';
+  linePathsA  = []; linePathsB  = [];
+  clickPathsA = []; clickPathsB = [];
+  for (let c = 0; c < 3; c++) itemEls[c] = [];
+
+  // Dashed axes + arrows
+  for (let col = 0; col < 3; col++) {
+    const axis = document.createElement('div');
+    axis.className = 'col-axis';
+    axis.style.left = colX[col] + 'px';
+    stage.appendChild(axis);
+
+    ['up', 'dn'].forEach(dir => {
+      const el = document.createElement('div');
+      el.className = `col-arrow ${dir}`;
+      el.style.left = colX[col] + 'px';
+      el.textContent = dir === 'up' ? '↑' : '↓';
+      stage.appendChild(el);
+    });
+  }
+
+  // Visible lines
+  for (let i = 0; i < N; i++) {
+    [linePathsA, linePathsB].forEach(arr => {
+      const p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      p.setAttribute('fill', 'none');
+      p.setAttribute('stroke', '#000');
+      p.setAttribute('stroke-width', '0.75');
+      svgEl.appendChild(p);
+      arr.push(p);
+    });
+  }
+
+  // Click overlays (invisible, wider)
+  for (let i = 0; i < N; i++) {
+    [clickPathsA, clickPathsB].forEach(arr => {
+      const p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      p.setAttribute('fill', 'none');
+      p.setAttribute('stroke', 'transparent');
+      p.setAttribute('stroke-width', '14');
+      p.style.cursor = 'pointer';
+      p.style.pointerEvents = 'stroke';
+      const ci = i;
+      p.addEventListener('click', () => setActive(ci));
+      svgEl.appendChild(p);
+      arr.push(p);
+    });
+  }
+
+  // Item elements
+  for (let col = 0; col < 3; col++) {
+    for (let i = 0; i < N; i++) {
+      const el = document.createElement('div');
+      el.className = 'item';
+      el.style.left = colX[col] + 'px';
+      el.style.top  = '0px';
+
+      const label = document.createElement('div');
+      label.className = 'item-label';
+      label.textContent = col === 0 ? artists[i].a
+                        : col === 1 ? artists[i].name
+                        :             artists[i].b;
+      el.appendChild(label);
+
+      const ci = i;
+      el.addEventListener('click', () => setActive(ci));
+
+      stage.appendChild(el);
+      itemEls[col][i] = el;
+    }
+  }
+}
+
+/* ───────────────────────────────
+   DRAW LINES (runs every rAF)
+─────────────────────────────── */
+const LINE_GAP = 36; // 텍스트와 라인 사이 여백 (px)
+
+function drawLines() {
+  for (let i = 0; i < N; i++) {
+    const yA = pos[0][i];
+    const yM = pos[1][i];
+    const yB = pos[2][i];
+
+    const isActive = (i === activeIdx);
+    const isDimmed = (activeIdx !== null && !isActive);
+
+    const color = isDimmed ? '#d0d0d0' : '#000';
+    const width = isActive ? '1.6' : '0.75';
+
+    // 각 라인이 텍스트 바로 앞에서 끊기도록 gap 적용
+    const dA = `M ${colX[0] + LINE_GAP} ${yA} L ${colX[1] - LINE_GAP} ${yM}`;
+    const dB = `M ${colX[1] + LINE_GAP} ${yM} L ${colX[2] - LINE_GAP} ${yB}`;
+
+    linePathsA[i].setAttribute('d', dA);
+    linePathsA[i].setAttribute('stroke', color);
+    linePathsA[i].setAttribute('stroke-width', width);
+
+    linePathsB[i].setAttribute('d', dB);
+    linePathsB[i].setAttribute('stroke', color);
+    linePathsB[i].setAttribute('stroke-width', width);
+
+    clickPathsA[i].setAttribute('d', dA);
+    clickPathsB[i].setAttribute('d', dB);
+  }
+
+  // Bring active lines to SVG front (only when activeIdx changes)
+  if (activeIdx !== prevActiveIdx) {
+    prevActiveIdx = activeIdx;
+    if (activeIdx !== null) {
+      svgEl.appendChild(linePathsA[activeIdx]);
+      svgEl.appendChild(linePathsB[activeIdx]);
+      svgEl.appendChild(clickPathsA[activeIdx]);
+      svgEl.appendChild(clickPathsB[activeIdx]);
+    }
+  }
+}
+
+/* ───────────────────────────────
+   ANIMATION LOOP
+─────────────────────────────── */
+function rafLoop() {
+  drawLines();
+  requestAnimationFrame(rafLoop);
+}
+
+/* ───────────────────────────────
+   INIT
+─────────────────────────────── */
+function placeInitial() {
+  for (let col = 0; col < 3; col++) {
+    const order = shuffle(Array.from({ length: N }, (_, i) => i));
+    assignPositions(col, order);
+    for (let i = 0; i < N; i++) {
+      if (itemEls[col][i]) {
+        itemEls[col][i].style.transition = 'none';
+        itemEls[col][i].style.top = pos[col][i] + 'px';
+      }
+    }
+  }
+  // Re-enable transitions next frame
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      for (let col = 0; col < 3; col++) {
+        for (let i = 0; i < N; i++) {
+          if (itemEls[col][i]) {
+            itemEls[col][i].style.transition = 'top 1.5s cubic-bezier(0.65, 0, 0.35, 1)';
+          }
+        }
+      }
+    });
+  });
+}
+
+function init() {
+  computeLayout();
+  buildDOM();
+  placeInitial(); // 새로고침할 때마다 랜덤 배치
+  requestAnimationFrame(rafLoop);
+}
+
+window.addEventListener('resize', () => {
+  computeLayout();
+  buildDOM();
+  placeInitial();
+  updateStyles();
+});
+
+init();
+</script>
+</body>
+</html>
