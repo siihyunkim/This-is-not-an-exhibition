@@ -370,6 +370,43 @@ function rafLoop() {
 }
 
 /* ───────────────────────────────
+   LINE DRAW-IN ANIMATION
+   로딩 시 선이 착착 그려지는 효과
+─────────────────────────────── */
+function animateDrawLines() {
+  // A→M, M→B 순서로 쌍으로 그려짐
+  const sequence = [];
+  for (let i = 0; i < N; i++) {
+    sequence.push(linePathsA[i]);
+    sequence.push(linePathsB[i]);
+  }
+
+  const STAGGER  = 28;  // 각 선 사이 간격 (ms)
+  const DURATION = 220; // 선 하나가 그려지는 시간 (ms)
+
+  // 전부 숨김
+  sequence.forEach(p => {
+    const len = p.getTotalLength();
+    p.style.strokeDasharray  = len;
+    p.style.strokeDashoffset = len;
+  });
+
+  // 순서대로 그리기
+  sequence.forEach((path, idx) => {
+    setTimeout(() => {
+      path.style.transition      = `stroke-dashoffset ${DURATION}ms ease-out`;
+      path.style.strokeDashoffset = '0';
+      // 애니메이션 끝나면 CSS 정리 → rAF 루프가 정상 렌더링 이어받음
+      setTimeout(() => {
+        path.style.strokeDasharray  = '';
+        path.style.strokeDashoffset = '';
+        path.style.transition       = '';
+      }, DURATION + 60);
+    }, idx * STAGGER);
+  });
+}
+
+/* ───────────────────────────────
    INIT
 ─────────────────────────────── */
 function placeInitial() {
@@ -409,7 +446,12 @@ function init() {
     updateStyles();
   }
 
-  requestAnimationFrame(rafLoop);
+  // 첫 프레임에 선 위치 그려두고 → draw-in 애니메이션 실행
+  requestAnimationFrame(() => {
+    drawLines();
+    animateDrawLines();
+    requestAnimationFrame(rafLoop);
+  });
 }
 
 window.addEventListener('resize', () => {
