@@ -365,45 +365,57 @@ function drawLines() {
    ANIMATION LOOP
 ─────────────────────────────── */
 function rafLoop() {
+  const now = performance.now();
   drawLines();
+  updateDrawAnim(now); // drawLines 다음에 → dashoffset이 덮어씀
   requestAnimationFrame(rafLoop);
 }
 
 /* ───────────────────────────────
    LINE DRAW-IN ANIMATION
-   로딩 시 선이 착착 그려지는 효과
+   rAF 루프에서 직접 계산 (CSS transition 대신)
 ─────────────────────────────── */
-function animateDrawLines() {
-  // A→M, M→B 순서로 쌍으로 그려짐
-  const sequence = [];
+const DRAW_STAGGER  = 30;  // 선 사이 간격 (ms)
+const DRAW_DURATION = 250; // 선 하나 그려지는 시간 (ms)
+let drawStart = null;
+
+function easeOut(t) { return 1 - Math.pow(1 - t, 2); }
+
+function startDrawAnim() {
+  drawStart = performance.now();
+  // d 속성이 세팅된 상태에서 길이 기록
   for (let i = 0; i < N; i++) {
-    sequence.push(linePathsA[i]);
-    sequence.push(linePathsB[i]);
+    linePathsA[i]._len = linePathsA[i].getTotalLength() || 1;
+    linePathsB[i]._len = linePathsB[i].getTotalLength() || 1;
+    linePathsA[i].setAttribute('stroke-dasharray',  linePathsA[i]._len);
+    linePathsA[i].setAttribute('stroke-dashoffset', linePathsA[i]._len);
+    linePathsB[i].setAttribute('stroke-dasharray',  linePathsB[i]._len);
+    linePathsB[i].setAttribute('stroke-dashoffset', linePathsB[i]._len);
+  }
+}
+
+function updateDrawAnim(now) {
+  if (!drawStart) return;
+  let allDone = true;
+
+  for (let i = 0; i < N; i++) {
+    [[linePathsA[i], i * 2], [linePathsB[i], i * 2 + 1]].forEach(([path, idx]) => {
+      const elapsed = now - drawStart - idx * DRAW_STAGGER;
+      const len = path._len || 1;
+      if (elapsed < 0) {
+        allDone = false;
+        path.setAttribute('stroke-dashoffset', len);
+      } else if (elapsed < DRAW_DURATION) {
+        allDone = false;
+        path.setAttribute('stroke-dashoffset', len * (1 - easeOut(elapsed / DRAW_DURATION)));
+      } else {
+        path.removeAttribute('stroke-dasharray');
+        path.removeAttribute('stroke-dashoffset');
+      }
+    });
   }
 
-  const STAGGER  = 28;  // 각 선 사이 간격 (ms)
-  const DURATION = 220; // 선 하나가 그려지는 시간 (ms)
-
-  // 전부 숨김
-  sequence.forEach(p => {
-    const len = p.getTotalLength();
-    p.style.strokeDasharray  = len;
-    p.style.strokeDashoffset = len;
-  });
-
-  // 순서대로 그리기
-  sequence.forEach((path, idx) => {
-    setTimeout(() => {
-      path.style.transition      = `stroke-dashoffset ${DURATION}ms ease-out`;
-      path.style.strokeDashoffset = '0';
-      // 애니메이션 끝나면 CSS 정리 → rAF 루프가 정상 렌더링 이어받음
-      setTimeout(() => {
-        path.style.strokeDasharray  = '';
-        path.style.strokeDashoffset = '';
-        path.style.transition       = '';
-      }, DURATION + 60);
-    }, idx * STAGGER);
-  });
+  if (allDone) drawStart = null;
 }
 
 /* ───────────────────────────────
@@ -446,10 +458,10 @@ function init() {
     updateStyles();
   }
 
-  // 첫 프레임에 선 위치 그려두고 → draw-in 애니메이션 실행
+  // 첫 프레임에 선 위치·길이 계산 후 → draw-in 애니메이션 시작
   requestAnimationFrame(() => {
-    drawLines();
-    animateDrawLines();
+    drawLines();       // d 속성 먼저 세팅
+    startDrawAnim();   // 길이 계산 후 애니메이션 시작
     requestAnimationFrame(rafLoop);
   });
 }
