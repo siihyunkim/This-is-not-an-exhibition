@@ -204,7 +204,7 @@ body {
 /* 작업 제목 Ko (좌측 컬럼) */
 #work-title-ko {
   font-family: var(--ko);
-  font-size: 12px; font-weight: 700;
+  font-size: 15px; font-weight: 700;
   letter-spacing: -0.09em; line-height: 1.45;
   padding-right: 20px;
 }
@@ -213,37 +213,37 @@ body {
 
 #detail-artist-name {
   font-family: var(--ko);
-  font-size: 12px; font-weight: 700;
+  font-size: 15px; font-weight: 700;
   letter-spacing: -0.09em; line-height: 1.45;
 }
 #detail-handle {
   font-family: var(--en);
-  font-size: 10px; color: #888;
+  font-size: 15px; color: #888;
   letter-spacing: -0.05em; margin-top: 3px;
 }
 
 /* 작업 제목 En (좌측 컬럼, Ko 바로 아래) */
 #work-title-en {
   font-family: var(--en);
-  font-size: 11px; font-weight: 700;
+  font-size: 15px; font-weight: 700;
   letter-spacing: -0.05em; line-height: 1.45;
   padding-right: 20px;
-  margin-top: 4px;
+  margin-top: 0;
   grid-column: 1;
 }
 
 /* 설명 텍스트 */
 #detail-desc-ko {
   font-family: var(--ko);
-  font-size: 11px; font-weight: 400;
+  font-size: 15px; font-weight: 400;
   line-height: 1.9; letter-spacing: -0.09em;
   padding-right: 20px; margin-top: 28px;
   grid-column: 1;
 }
 #detail-desc-en {
   font-family: var(--en);
-  font-size: 10px; font-weight: 400;
-  line-height: 1.9; letter-spacing: -0.05em;
+  font-size: 15px; font-weight: 400;
+  line-height: 1.9; letter-spacing: -0.02em;
   color: #222;
   padding-left: 12px; margin-top: 28px;
   grid-column: 2; grid-row: 3;
@@ -365,6 +365,7 @@ const artists = [
 /* 작가별 상세 콘텐츠 — 아래 형식으로 추가 */
 const artistDetail = {
   16: { // 김주현
+    enTitle: "Skateboard is a Scanner.",
     handle: "@3_jhn_3",
     descKo: `길 위의 단차와 요철, 마찰과 흔들림은 도로가 지닌 정보가 되며, 보드는 길 위를 주행하며 이를 몸의 움직임으로 변환한다. 『Skateboard is a Scanner』는 19개의 바닥 이미지와 스캔된 기록을 통해, 보드를 타고 길을 읽는 감각을 전달한다.`,
     descEn: `The differences in level, uneven textures, friction, and vibrations of the road become information held by its surface, and as the board moves across it, it translates them into bodily movement. 『Skateboard is a Scanner』 conveys the sensation of reading the road through a board, through 19 images of ground surfaces and scanned records.`,
@@ -419,7 +420,7 @@ function renderDetail(idx) {
   const det = artistDetail[idx] || {};
 
   document.getElementById('work-title-ko').textContent = `${ar.a}${prt(ar.a)} ${ar.b}${end(ar.b)}`;
-  document.getElementById('work-title-en').textContent = `${ar.a} is a ${ar.b}`;
+  document.getElementById('work-title-en').textContent = det.enTitle || `${ar.a} is a ${ar.b}`;
   document.getElementById('detail-artist-name').textContent = ar.name;
   document.getElementById('detail-handle').textContent = det.handle || '';
   document.getElementById('detail-desc-ko').textContent = det.descKo || '';
