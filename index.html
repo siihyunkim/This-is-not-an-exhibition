@@ -57,7 +57,7 @@ body {
 }
 .footer-col {
   font-family: var(--ko);
-  font-size: 8px; line-height: 1.75; color: #999;
+  font-size: 8px; line-height: 1.75; color: #72D4E4;
   letter-spacing: -0.09em;
   white-space: nowrap;
 }
@@ -201,52 +201,51 @@ body {
 }
 #detail-content::-webkit-scrollbar { display: none; }
 
-/* 작업 제목 Ko (좌측 컬럼) */
+/* 제목 그룹 (Ko + En 묶음, 좌측) */
+#title-group {
+  grid-column: 1;
+  padding-right: 20px;
+}
 #work-title-ko {
   font-family: var(--ko);
   font-size: 15px; font-weight: 700;
-  letter-spacing: -0.09em; line-height: 1.45;
-  padding-right: 20px;
+  letter-spacing: -0.09em; line-height: 1.4;
 }
+#work-title-en {
+  font-family: var(--en);
+  font-size: 15px; font-weight: 700;
+  letter-spacing: -0.05em; line-height: 1.4;
+  margin-top: 0;
+}
+
 /* 작가 정보 (우측 컬럼) */
 #artist-info { padding-left: 12px; }
-
 #detail-artist-name {
   font-family: var(--ko);
   font-size: 15px; font-weight: 700;
-  letter-spacing: -0.09em; line-height: 1.45;
+  letter-spacing: -0.09em; line-height: 1.4;
 }
 #detail-handle {
   font-family: var(--en);
   font-size: 15px; color: #888;
-  letter-spacing: -0.05em; margin-top: 3px;
-}
-
-/* 작업 제목 En (좌측 컬럼, Ko 바로 아래) */
-#work-title-en {
-  font-family: var(--en);
-  font-size: 15px; font-weight: 700;
-  letter-spacing: -0.05em; line-height: 1.45;
-  padding-right: 20px;
-  margin-top: 0;
-  grid-column: 1;
+  letter-spacing: -0.05em; margin-top: 2px;
 }
 
 /* 설명 텍스트 */
 #detail-desc-ko {
   font-family: var(--ko);
   font-size: 15px; font-weight: 400;
-  line-height: 1.9; letter-spacing: -0.09em;
+  line-height: 1.55; letter-spacing: -0.09em;
   padding-right: 20px; margin-top: 28px;
   grid-column: 1;
 }
 #detail-desc-en {
   font-family: var(--en);
   font-size: 15px; font-weight: 400;
-  line-height: 1.9; letter-spacing: -0.02em;
+  line-height: 1.55; letter-spacing: -0.02em;
   color: #222;
   padding-left: 12px; margin-top: 28px;
-  grid-column: 2; grid-row: 3;
+  grid-column: 2; grid-row: 2;
 }
 
 /* 오른쪽 다크 이미지 영역 */
@@ -304,14 +303,15 @@ body {
         <a class="back-btn" href="#">←</a>
       </aside>
       <div id="detail-content">
-        <!-- grid: 2열 -->
-        <div id="work-title-ko"></div>
+        <!-- Ko+En 제목을 하나로 묶어서 행 gap 제거 -->
+        <div id="title-group">
+          <div id="work-title-ko"></div>
+          <div id="work-title-en"></div>
+        </div>
         <div id="artist-info">
           <div id="detail-artist-name"></div>
           <div id="detail-handle"></div>
         </div>
-        <div id="work-title-en"></div>
-        <!-- row 3 -->
         <div id="detail-desc-ko"></div>
         <div id="detail-desc-en"></div>
       </div>
