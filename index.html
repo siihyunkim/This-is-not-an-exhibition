@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>거짓말</title>
+<title>이것은 전시가 아니다</title>
 <style>
   *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -13,41 +13,35 @@
     overflow: hidden;
     height: 100vh;
     width: 100vw;
+    display: flex;
+    flex-direction: column;
     color: #000;
   }
 
-  /* ── NAV ── */
-  nav {
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    height: 48px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 32px;
-    background: #fff;
-    z-index: 200;
+  /* ── TITLE ── */
+  #title-section {
+    flex-shrink: 0;
+    text-align: center;
+    padding: 20px 32px 14px;
+    line-height: 1.15;
   }
-  .nav-title {
-    font-size: 12px;
-    font-weight: 400;
-    letter-spacing: 0.06em;
+  #title-section h1 {
+    font-size: clamp(20px, 3.2vw, 50px);
+    font-weight: 800;
+    letter-spacing: -0.01em;
   }
-  .nav-detail {
-    font-size: 12px;
-    font-weight: 400;
-    letter-spacing: 0.06em;
-    cursor: pointer;
-    opacity: 0.5;
-    transition: opacity 0.2s;
+  #title-section h2 {
+    font-size: clamp(16px, 2.6vw, 40px);
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    margin-top: 2px;
   }
-  .nav-detail:hover { opacity: 1; }
 
   /* ── STAGE ── */
   #stage {
-    position: fixed;
-    top: 48px;
-    left: 0; right: 0; bottom: 0;
+    flex: 1;
+    position: relative;
+    overflow: hidden;
     user-select: none;
   }
 
@@ -57,13 +51,12 @@
     inset: 0;
     width: 100%;
     height: 100%;
-    overflow: visible;
   }
 
   /* ── COLUMN DECORATIONS ── */
   .col-axis {
     position: absolute;
-    top: 28px; bottom: 28px;
+    top: 18px; bottom: 18px;
     width: 0;
     transform: translateX(-50%);
     border-left: 1px dashed #ccc;
@@ -71,61 +64,88 @@
   }
   .col-arrow {
     position: absolute;
-    color: #999;
+    color: #aaa;
     font-size: 10px;
     transform: translateX(-50%);
     pointer-events: none;
     line-height: 1;
   }
-  .col-arrow.up { top: 10px; }
-  .col-arrow.dn { bottom: 10px; }
+  .col-arrow.up { top: 4px; }
+  .col-arrow.dn { bottom: 4px; }
 
   /* ── ITEMS ── */
   .item {
     position: absolute;
-    transform: translateX(-50%) translateY(-50%);
     cursor: pointer;
     display: flex;
     align-items: center;
-    justify-content: center;
-    transition: top 1.5s cubic-bezier(0.65, 0, 0.35, 1);
-    z-index: 10;
+    /* transform set per-column in JS */
   }
-
   .item-label {
     font-size: 10px;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.03em;
     white-space: nowrap;
     color: #000;
-    line-height: 1.5;
-    transition: color 0.4s, opacity 0.4s;
+    line-height: 1.4;
+    transition: color 0.35s;
   }
+  .item.active   .item-label { color: #000; font-weight: 700; }
+  .item.dimmed   .item-label { color: #c0c0c0; }
 
-  .item.active .item-label {
-    color: #000;
-    font-weight: 600;
+  /* ── FOOTER ── */
+  #footer {
+    flex-shrink: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding: 8px 28px 14px;
   }
-  .item.dimmed .item-label {
-    color: #bbb;
+  .footer-col {
+    font-size: 8.5px;
+    line-height: 1.7;
+    color: #888;
+    letter-spacing: 0.02em;
+    flex: 1;
   }
+  .footer-col:nth-child(2) { text-align: center; }
+  .footer-col:nth-child(3) { text-align: right; }
 </style>
 </head>
 <body>
 
-<nav>
-  <span class="nav-title">거짓말</span>
-  <span class="nav-detail">전시 상세</span>
-</nav>
+<!-- TITLE -->
+<div id="title-section">
+  <h1>This is not an exhibition</h1>
+  <h2>이것은 전시가 아니다</h2>
+</div>
 
+<!-- STAGE -->
 <div id="stage">
   <svg id="svg-lines"></svg>
 </div>
 
+<!-- FOOTER -->
+<footer id="footer">
+  <div class="footer-col">
+    홍익대학교 시각디자인과(23)<br>
+    지도교수 석재원
+  </div>
+  <div class="footer-col">
+    개인별 도슨트 참여 안내<br>
+    2025년 4월 20일(월) — 4월 24일(금)<br>
+    홍익대학교 홍문관 7층 777
+  </div>
+  <div class="footer-col">
+    개인별 도슨트 참여 안내<br>
+    2025년 4월 20일(월) — 4월 24일(금)<br>
+    홍익대학교 홍문관 7층 777
+  </div>
+</footer>
+
 <script>
-/* ───────────────────────────────
-   DATA
-   마지막 항목(김주현)의 B값은 구글 독스 원본 확인 후 업데이트 해주세요.
-─────────────────────────────── */
+/* ─────────────────────────────
+   DATA — 27 artists
+───────────────────────────── */
 const artists = [
   { a: "모기",          name: "김세민",   b: "예술가" },
   { a: "캡챠",          name: "여단아",   b: "로봇의 메시지" },
@@ -157,31 +177,29 @@ const artists = [
 ];
 
 const N = artists.length;
-const COL_FRACS = [0.15, 0.50, 0.85];
-const PAD_V = 36;
+// A축 = 13%, 작업자 = 50%, B축 = 87%
+const COL_FRACS = [0.13, 0.50, 0.87];
+const PAD_V = 22;
 
-/* ───────────────────────────────
+/* ─────────────────────────────
    STATE
-─────────────────────────────── */
-let activeIdx = null;
+───────────────────────────── */
+let activeIdx    = null;
 let prevActiveIdx = -2;
 let stageW = 0, stageH = 0;
-let colX = [];
+let colX   = [];
 
-// pos[col][artistIdx] = y center (px, relative to stage)
-const pos = [new Array(N).fill(0), new Array(N).fill(0), new Array(N).fill(0)];
-
-// DOM
-const itemEls   = [[], [], []];
+const pos     = [new Array(N).fill(0), new Array(N).fill(0), new Array(N).fill(0)];
+const itemEls = [[], [], []];
 let linePathsA  = [], linePathsB  = [];
 let clickPathsA = [], clickPathsB = [];
 
-const stage  = document.getElementById('stage');
-const svgEl  = document.getElementById('svg-lines');
+const stage = document.getElementById('stage');
+const svgEl = document.getElementById('svg-lines');
 
-/* ───────────────────────────────
+/* ─────────────────────────────
    UTILS
-─────────────────────────────── */
+───────────────────────────── */
 function shuffle(arr) {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
@@ -191,16 +209,16 @@ function shuffle(arr) {
   return a;
 }
 
-/* ───────────────────────────────
+/* ─────────────────────────────
    LAYOUT
-─────────────────────────────── */
+───────────────────────────── */
 function computeLayout() {
   stageW = stage.offsetWidth;
   stageH = stage.offsetHeight;
-  colX = COL_FRACS.map(f => f * stageW);
+  colX   = COL_FRACS.map(f => f * stageW);
   svgEl.setAttribute('viewBox', `0 0 ${stageW} ${stageH}`);
-  svgEl.setAttribute('width',  stageW);
-  svgEl.setAttribute('height', stageH);
+  svgEl.setAttribute('width',   stageW);
+  svgEl.setAttribute('height',  stageH);
 }
 
 function assignPositions(col, order) {
@@ -211,24 +229,11 @@ function assignPositions(col, order) {
   });
 }
 
-/* ───────────────────────────────
-   SHUFFLE A SINGLE COLUMN
-─────────────────────────────── */
-function shuffleCol(col) {
-  const order = shuffle(Array.from({ length: N }, (_, i) => i));
-  assignPositions(col, order);
-  for (let i = 0; i < N; i++) {
-    if (itemEls[col][i]) {
-      itemEls[col][i].style.top = pos[col][i] + 'px';
-    }
-  }
-}
-
-/* ───────────────────────────────
+/* ─────────────────────────────
    INTERACTION
-─────────────────────────────── */
+───────────────────────────── */
 function setActive(idx) {
-  if (activeIdx === idx) return; // 같은 항목 클릭 시 해제 안 됨
+  if (activeIdx === idx) return;
   activeIdx = idx;
   updateStyles();
 }
@@ -241,23 +246,23 @@ function updateStyles() {
       el.classList.remove('active', 'dimmed');
       if (activeIdx !== null) {
         if (i === activeIdx) el.classList.add('active');
-        else el.classList.add('dimmed');
+        else                 el.classList.add('dimmed');
       }
     }
   }
 }
 
-/* ───────────────────────────────
+/* ─────────────────────────────
    BUILD DOM
-─────────────────────────────── */
+───────────────────────────── */
 function buildDOM() {
   stage.querySelectorAll('.item, .col-axis, .col-arrow').forEach(e => e.remove());
   svgEl.innerHTML = '';
-  linePathsA  = []; linePathsB  = [];
+  linePathsA = []; linePathsB = [];
   clickPathsA = []; clickPathsB = [];
   for (let c = 0; c < 3; c++) itemEls[c] = [];
 
-  // Dashed axes + arrows
+  // 축선 + 화살표
   for (let col = 0; col < 3; col++) {
     const axis = document.createElement('div');
     axis.className = 'col-axis';
@@ -273,19 +278,19 @@ function buildDOM() {
     });
   }
 
-  // Visible lines
+  // SVG 라인
   for (let i = 0; i < N; i++) {
     [linePathsA, linePathsB].forEach(arr => {
       const p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
       p.setAttribute('fill', 'none');
       p.setAttribute('stroke', '#000');
-      p.setAttribute('stroke-width', '0.75');
+      p.setAttribute('stroke-width', '0.7');
       svgEl.appendChild(p);
       arr.push(p);
     });
   }
 
-  // Click overlays (invisible, wider)
+  // 클릭 오버레이
   for (let i = 0; i < N; i++) {
     [clickPathsA, clickPathsB].forEach(arr => {
       const p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
@@ -301,16 +306,36 @@ function buildDOM() {
     });
   }
 
-  // Item elements
+  // 컬럼별 transform & 정렬
+  // A: 텍스트가 축선 왼쪽에 오른맞춤
+  // 작업자: 축선 중앙
+  // B: 텍스트가 축선 오른쪽에 왼맞춤
+  const transforms   = [
+    'translateX(-100%) translateY(-50%)',
+    'translateX(-50%)  translateY(-50%)',
+    'translateX(0%)    translateY(-50%)',
+  ];
+  const justifys     = ['flex-end', 'center', 'flex-start'];
+  const textAligns   = ['right', 'center', 'left'];
+  const widths       = [
+    Math.max(60, colX[0] - 6) + 'px',
+    '110px',
+    Math.max(60, stageW - colX[2] - 6) + 'px',
+  ];
+
   for (let col = 0; col < 3; col++) {
     for (let i = 0; i < N; i++) {
       const el = document.createElement('div');
       el.className = 'item';
-      el.style.left = colX[col] + 'px';
-      el.style.top  = '0px';
+      el.style.left           = colX[col] + 'px';
+      el.style.top            = '0px';
+      el.style.transform      = transforms[col];
+      el.style.width          = widths[col];
+      el.style.justifyContent = justifys[col];
 
       const label = document.createElement('div');
       label.className = 'item-label';
+      label.style.textAlign = textAligns[col];
       label.textContent = col === 0 ? artists[i].a
                         : col === 1 ? artists[i].name
                         :             artists[i].b;
@@ -318,47 +343,38 @@ function buildDOM() {
 
       const ci = i;
       el.addEventListener('click', () => setActive(ci));
-
       stage.appendChild(el);
       itemEls[col][i] = el;
     }
   }
 }
 
-/* ───────────────────────────────
-   DRAW LINES (runs every rAF)
-─────────────────────────────── */
-const LINE_GAP = 36; // 텍스트와 라인 사이 여백 (px)
-
+/* ─────────────────────────────
+   DRAW LINES
+───────────────────────────── */
 function drawLines() {
   for (let i = 0; i < N; i++) {
-    const yA = pos[0][i];
-    const yM = pos[1][i];
-    const yB = pos[2][i];
-
+    const yA = pos[0][i], yM = pos[1][i], yB = pos[2][i];
     const isActive = (i === activeIdx);
     const isDimmed = (activeIdx !== null && !isActive);
-
     const color = isDimmed ? '#d0d0d0' : '#000';
-    const width = isActive ? '1.6' : '0.75';
+    const width = isActive ? '1.6' : '0.7';
 
-    // 각 라인이 텍스트 바로 앞에서 끊기도록 gap 적용
-    const dA = `M ${colX[0] + LINE_GAP} ${yA} L ${colX[1] - LINE_GAP} ${yM}`;
-    const dB = `M ${colX[1] + LINE_GAP} ${yM} L ${colX[2] - LINE_GAP} ${yB}`;
+    // 라인은 각 축선 사이를 직선으로 연결
+    const dA = `M ${colX[0]} ${yA} L ${colX[1]} ${yM}`;
+    const dB = `M ${colX[1]} ${yM} L ${colX[2]} ${yB}`;
 
     linePathsA[i].setAttribute('d', dA);
     linePathsA[i].setAttribute('stroke', color);
     linePathsA[i].setAttribute('stroke-width', width);
-
     linePathsB[i].setAttribute('d', dB);
     linePathsB[i].setAttribute('stroke', color);
     linePathsB[i].setAttribute('stroke-width', width);
-
     clickPathsA[i].setAttribute('d', dA);
     clickPathsB[i].setAttribute('d', dB);
   }
 
-  // Bring active lines to SVG front (only when activeIdx changes)
+  // 선택된 라인을 SVG 맨 위로
   if (activeIdx !== prevActiveIdx) {
     prevActiveIdx = activeIdx;
     if (activeIdx !== null) {
@@ -370,29 +386,17 @@ function drawLines() {
   }
 }
 
-/* ───────────────────────────────
-   ANIMATION LOOP
-─────────────────────────────── */
-function rafLoop() {
-  const now = performance.now();
-  drawLines();
-  updateDrawAnim(now); // drawLines 다음에 → dashoffset이 덮어씀
-  requestAnimationFrame(rafLoop);
-}
-
-/* ───────────────────────────────
-   LINE DRAW-IN ANIMATION
-   rAF 루프에서 직접 계산 (CSS transition 대신)
-─────────────────────────────── */
-const DRAW_STAGGER  = 30;  // 선 사이 간격 (ms)
-const DRAW_DURATION = 250; // 선 하나 그려지는 시간 (ms)
+/* ─────────────────────────────
+   DRAW-IN ANIMATION
+───────────────────────────── */
+const DRAW_STAGGER  = 28;
+const DRAW_DURATION = 220;
 let drawStart = null;
 
 function easeOut(t) { return 1 - Math.pow(1 - t, 2); }
 
 function startDrawAnim() {
   drawStart = performance.now();
-  // d 속성이 세팅된 상태에서 길이 기록
   for (let i = 0; i < N; i++) {
     linePathsA[i]._len = linePathsA[i].getTotalLength() || 1;
     linePathsB[i]._len = linePathsB[i].getTotalLength() || 1;
@@ -406,7 +410,6 @@ function startDrawAnim() {
 function updateDrawAnim(now) {
   if (!drawStart) return;
   let allDone = true;
-
   for (let i = 0; i < N; i++) {
     [[linePathsA[i], i * 2], [linePathsB[i], i * 2 + 1]].forEach(([path, idx]) => {
       const elapsed = now - drawStart - idx * DRAW_STAGGER;
@@ -423,13 +426,22 @@ function updateDrawAnim(now) {
       }
     });
   }
-
   if (allDone) drawStart = null;
 }
 
-/* ───────────────────────────────
+/* ─────────────────────────────
+   RAF LOOP
+───────────────────────────── */
+function rafLoop() {
+  const now = performance.now();
+  drawLines();
+  updateDrawAnim(now);
+  requestAnimationFrame(rafLoop);
+}
+
+/* ─────────────────────────────
    INIT
-─────────────────────────────── */
+───────────────────────────── */
 function placeInitial() {
   for (let col = 0; col < 3; col++) {
     const order = shuffle(Array.from({ length: N }, (_, i) => i));
@@ -441,29 +453,16 @@ function placeInitial() {
       }
     }
   }
-  // Re-enable transitions next frame
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      for (let col = 0; col < 3; col++) {
-        for (let i = 0; i < N; i++) {
-          if (itemEls[col][i]) {
-            itemEls[col][i].style.transition = 'top 1.5s cubic-bezier(0.65, 0, 0.35, 1)';
-          }
-        }
-      }
-    });
-  });
 }
 
 function init() {
   computeLayout();
   buildDOM();
-  placeInitial(); // 새로고침할 때마다 랜덤 배치
+  placeInitial();
 
-  // 첫 프레임에 선 위치·길이 계산 후 → draw-in 애니메이션 시작
   requestAnimationFrame(() => {
-    drawLines();       // d 속성 먼저 세팅
-    startDrawAnim();   // 길이 계산 후 애니메이션 시작
+    drawLines();
+    startDrawAnim();
     requestAnimationFrame(rafLoop);
   });
 }
