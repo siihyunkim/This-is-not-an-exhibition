@@ -51,16 +51,18 @@ body {
 /* ── 공통 푸터 ── */
 .footer-bar {
   flex-shrink: 0;
-  display: flex; justify-content: space-between; align-items: flex-end;
-  padding: 8px 28px 14px;
+  display: flex; align-items: flex-end;
+  padding: 10px 28px 16px;
+  gap: 40px;
 }
 .footer-col {
   font-family: var(--ko);
   font-size: 8px; line-height: 1.75; color: #999;
-  letter-spacing: 0.02em; flex: 1;
+  letter-spacing: -0.09em;
+  white-space: nowrap;
 }
-.footer-col:nth-child(2) { text-align: center; }
-.footer-col:nth-child(3) { text-align: right; }
+.footer-spacer { flex: 1; }
+.footer-col.right { text-align: right; }
 
 /* ════════════════════════════════
    LANDING
@@ -75,13 +77,13 @@ body {
   font-family: var(--en);
   font-size: clamp(20px, 3vw, 50px);
   font-weight: 300;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.05em;
 }
 #title-section h2 {
   font-family: var(--ko);
   font-size: clamp(16px, 2.4vw, 40px);
   font-weight: 300;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.09em;
   margin-top: 1px;
 }
 
@@ -105,12 +107,12 @@ body {
 
 .item { position: absolute; cursor: pointer; display: flex; align-items: center; }
 .item-label {
-  font-size: 9.5px; white-space: nowrap;
+  font-size: 11.5px; white-space: nowrap;
   line-height: 1.4;
   transition: color 0.3s, font-weight 0.2s;
 }
-.item-label.ko { font-family: var(--ko); font-weight: 400; letter-spacing: 0.01em; color: #222; }
-.item-label.en { font-family: var(--en); font-weight: 400; letter-spacing: 0.02em; color: #222; }
+.item-label.ko { font-family: var(--ko); font-weight: 400; letter-spacing: -0.09em; color: #222; }
+.item-label.en { font-family: var(--en); font-weight: 400; letter-spacing: -0.05em; color: #222; }
 
 /* 선택 상태 */
 .item.active   .item-label { color: #000; font-weight: 700; }
@@ -123,7 +125,12 @@ body {
 /* ════════════════════════════════
    DETAIL PAGE
 ════════════════════════════════ */
-#view-detail { overflow: hidden; }
+#view-detail {
+  height: auto;
+  min-height: 100vh;
+  position: relative; /* 스크롤 가능하도록 document flow 복귀 */
+  overflow: visible;
+}
 
 /* 상단 타이틀 (랜딩과 동일) */
 #detail-top {
@@ -135,12 +142,12 @@ body {
 #detail-top h1 {
   font-family: var(--en);
   font-size: clamp(20px, 3vw, 50px);
-  font-weight: 300; letter-spacing: -0.03em;
+  font-weight: 300; letter-spacing: -0.05em;
 }
 #detail-top h2 {
   font-family: var(--ko);
   font-size: clamp(16px, 2.4vw, 40px);
-  font-weight: 300; letter-spacing: -0.02em; margin-top: 1px;
+  font-weight: 300; letter-spacing: -0.09em; margin-top: 1px;
 }
 
 /* 바디: 왼쪽 흰색 | 오른쪽 다크 */
@@ -177,7 +184,7 @@ body {
   font-size: 7.5px; line-height: 2.3;
   color: #ccc; text-decoration: none;
   cursor: pointer; transition: color 0.15s;
-  letter-spacing: 0.03em;
+  letter-spacing: -0.05em;
 }
 .sidebar-num:hover { color: #000; }
 .sidebar-num.active { color: #000; font-weight: 700; }
@@ -188,41 +195,40 @@ body {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 0;
-  padding: 10px 20px 16px 10px;
+  padding: 36px 24px 24px 12px;
   overflow-y: auto; scrollbar-width: none;
   align-content: start;
 }
 #detail-content::-webkit-scrollbar { display: none; }
 
-/* 작업 제목 (좌측 컬럼) */
+/* 작업 제목 Ko (좌측 컬럼) */
 #work-title-ko {
   font-family: var(--ko);
-  font-size: 12.5px; font-weight: 700;
-  letter-spacing: -0.01em; line-height: 1.5;
-  padding-right: 16px;
+  font-size: 12px; font-weight: 700;
+  letter-spacing: -0.09em; line-height: 1.45;
+  padding-right: 20px;
 }
 /* 작가 정보 (우측 컬럼) */
-#artist-info {
-  padding-left: 8px;
-}
+#artist-info { padding-left: 12px; }
+
 #detail-artist-name {
   font-family: var(--ko);
-  font-size: 12.5px; font-weight: 700;
-  letter-spacing: 0.01em; line-height: 1.5;
+  font-size: 12px; font-weight: 700;
+  letter-spacing: -0.09em; line-height: 1.45;
 }
 #detail-handle {
   font-family: var(--en);
   font-size: 10px; color: #888;
-  letter-spacing: 0.02em; margin-top: 1px;
+  letter-spacing: -0.05em; margin-top: 3px;
 }
 
-/* 영문 작업 제목 (좌측 컬럼, 한글 타이틀 바로 아래) */
+/* 작업 제목 En (좌측 컬럼, Ko 바로 아래) */
 #work-title-en {
   font-family: var(--en);
   font-size: 11px; font-weight: 700;
-  letter-spacing: 0.01em; line-height: 1.5;
-  padding-right: 16px;
-  margin-top: 2px;
+  letter-spacing: -0.05em; line-height: 1.45;
+  padding-right: 20px;
+  margin-top: 4px;
   grid-column: 1;
 }
 
@@ -230,16 +236,16 @@ body {
 #detail-desc-ko {
   font-family: var(--ko);
   font-size: 11px; font-weight: 400;
-  line-height: 1.85; letter-spacing: 0.01em;
-  padding-right: 16px; margin-top: 22px;
+  line-height: 1.9; letter-spacing: -0.09em;
+  padding-right: 20px; margin-top: 28px;
   grid-column: 1;
 }
 #detail-desc-en {
   font-family: var(--en);
   font-size: 10px; font-weight: 400;
-  line-height: 1.85; letter-spacing: 0.01em;
+  line-height: 1.9; letter-spacing: -0.05em;
   color: #222;
-  padding-left: 8px; margin-top: 22px;
+  padding-left: 12px; margin-top: 28px;
   grid-column: 2; grid-row: 3;
 }
 
@@ -275,9 +281,10 @@ body {
   </div>
   <div id="stage"><svg id="svg-lines"></svg></div>
   <footer class="footer-bar">
-    <div class="footer-col">홍익대학교 시각디자인과(23)<br>지도교수 석재원</div>
-    <div class="footer-col">개인별 도슨트 참여 안내<br>2025년 4월 20일(월) — 4월 24일(금)<br>홍익대학교 홍문관 7층 777</div>
-    <div class="footer-col">개인별 도슨트 참여 안내<br>2025년 4월 20일(월) — 4월 24일(금)<br>홍익대학교 홍문관 7층 777</div>
+    <div class="footer-col">홍익대학교 시각디자인과<br>사회문화적디자인스튜디오(3)<br>지도교수 석재원</div>
+    <div class="footer-col">개인별 워크숍 결과물 전시<br>2025년 4월 20일 (월) — 4월 24일 (금)<br>홍익대학교 홍문관 7층 R777</div>
+    <div class="footer-spacer"></div>
+    <div class="footer-col right">개인별 워크숍 결과물 전시<br>2025년 4월 20일 (월) — 4월 24일 (금)<br>홍익대학교 홍문관 7층 R777</div>
   </footer>
 </div>
 
@@ -314,9 +321,10 @@ body {
     <div id="detail-right" id="detail-images"></div>
   </div>
   <footer class="footer-bar">
-    <div class="footer-col">홍익대학교 시각디자인과(23)<br>지도교수 석재원</div>
-    <div class="footer-col">개인별 도슨트 참여 안내<br>2025년 4월 20일(월) — 4월 24일(금)<br>홍익대학교 홍문관 7층 777</div>
-    <div class="footer-col">개인별 도슨트 참여 안내<br>2025년 4월 20일(월) — 4월 24일(금)<br>홍익대학교 홍문관 7층 777</div>
+    <div class="footer-col">홍익대학교 시각디자인과<br>사회문화적디자인스튜디오(3)<br>지도교수 석재원</div>
+    <div class="footer-col">개인별 워크숍 결과물 전시<br>2025년 4월 20일 (월) — 4월 24일 (금)<br>홍익대학교 홍문관 7층 R777</div>
+    <div class="footer-spacer"></div>
+    <div class="footer-col right">개인별 워크숍 결과물 전시<br>2025년 4월 20일 (월) — 4월 24일 (금)<br>홍익대학교 홍문관 7층 R777</div>
   </footer>
 </div>
 
@@ -392,10 +400,13 @@ function render() {
   if (r.page === 'detail') {
     document.getElementById('view-landing').classList.add('hidden');
     document.getElementById('view-detail').classList.remove('hidden');
+    document.body.style.overflowY = 'auto'; // 상세 페이지: 스크롤 허용
+    window.scrollTo(0, 0);
     renderDetail(r.idx);
   } else {
     document.getElementById('view-detail').classList.add('hidden');
     document.getElementById('view-landing').classList.remove('hidden');
+    document.body.style.overflowY = 'hidden'; // 랜딩: 스크롤 고정
   }
 }
 window.addEventListener('hashchange', render);
