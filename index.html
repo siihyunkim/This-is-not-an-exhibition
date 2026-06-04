@@ -10,15 +10,32 @@
   body {
     background: #fff;
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    height: 100vh; width: 100vw;
     overflow: hidden;
-    height: 100vh;
-    width: 100vw;
-    display: flex;
-    flex-direction: column;
     color: #000;
   }
 
-  /* ── TITLE ── */
+  /* ── VIEWS ── */
+  .view {
+    display: flex; flex-direction: column;
+    height: 100vh; width: 100vw;
+    position: absolute; top: 0; left: 0;
+  }
+  .view.hidden { display: none; }
+
+  /* ── SHARED FOOTER ── */
+  .footer-bar {
+    flex-shrink: 0;
+    display: flex; justify-content: space-between; align-items: flex-end;
+    padding: 8px 28px 14px;
+  }
+  .footer-col { font-size: 8.5px; line-height: 1.7; color: #888; letter-spacing: 0.02em; flex: 1; }
+  .footer-col:nth-child(2) { text-align: center; }
+  .footer-col:nth-child(3) { text-align: right; }
+
+  /* ════════════════════════
+     LANDING
+  ════════════════════════ */
   #title-section {
     flex-shrink: 0;
     text-align: center;
@@ -27,125 +44,185 @@
   }
   #title-section h1 {
     font-size: clamp(20px, 3.2vw, 50px);
-    font-weight: 800;
-    letter-spacing: -0.01em;
+    font-weight: 800; letter-spacing: -0.01em;
   }
   #title-section h2 {
     font-size: clamp(16px, 2.6vw, 40px);
-    font-weight: 700;
-    letter-spacing: 0.03em;
-    margin-top: 2px;
+    font-weight: 700; letter-spacing: 0.03em; margin-top: 2px;
   }
 
-  /* ── STAGE ── */
   #stage {
-    flex: 1;
-    position: relative;
-    overflow: hidden;
-    user-select: none;
+    flex: 1; position: relative; overflow: hidden; user-select: none;
   }
+  #svg-lines { position: absolute; inset: 0; width: 100%; height: 100%; }
 
-  /* ── SVG ── */
-  #svg-lines {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-  }
-
-  /* ── COLUMN DECORATIONS ── */
   .col-axis {
-    position: absolute;
-    top: 18px; bottom: 18px;
-    width: 0;
+    position: absolute; top: 18px; bottom: 18px; width: 0;
     transform: translateX(-50%);
-    border-left: 1px dashed #ccc;
-    pointer-events: none;
+    border-left: 1px dashed #ccc; pointer-events: none;
   }
   .col-arrow {
-    position: absolute;
-    color: #aaa;
-    font-size: 10px;
-    transform: translateX(-50%);
-    pointer-events: none;
-    line-height: 1;
+    position: absolute; color: #aaa; font-size: 10px;
+    transform: translateX(-50%); pointer-events: none; line-height: 1;
   }
   .col-arrow.up { top: 4px; }
   .col-arrow.dn { bottom: 4px; }
 
-  /* ── ITEMS ── */
   .item {
-    position: absolute;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    /* transform set per-column in JS */
+    position: absolute; cursor: pointer;
+    display: flex; align-items: center;
   }
   .item-label {
-    font-size: 10px;
-    letter-spacing: 0.03em;
-    white-space: nowrap;
-    color: #000;
-    line-height: 1.4;
-    transition: color 0.35s;
+    font-size: 10px; letter-spacing: 0.03em;
+    white-space: nowrap; color: #000; line-height: 1.4;
+    transition: color 0.25s;
   }
-  .item.active   .item-label { color: #000; font-weight: 700; }
-  .item.dimmed   .item-label { color: #c0c0c0; }
+  .item:hover .item-label { opacity: 0.5; }
 
-  /* ── FOOTER ── */
-  #footer {
+  /* ════════════════════════
+     DETAIL PAGE
+  ════════════════════════ */
+  #view-detail { overflow: hidden; }
+
+  /* 상단 제목 영역 */
+  #detail-header {
     flex-shrink: 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    padding: 8px 28px 14px;
+    padding: 20px 28px 12px 76px; /* left: 사이드바 너비만큼 indent */
+    line-height: 1.2;
+    border-bottom: 0px solid #eee;
   }
-  .footer-col {
-    font-size: 8.5px;
-    line-height: 1.7;
-    color: #888;
-    letter-spacing: 0.02em;
-    flex: 1;
+  #detail-title-en {
+    font-size: clamp(18px, 2.8vw, 46px);
+    font-weight: 800; letter-spacing: -0.01em;
   }
-  .footer-col:nth-child(2) { text-align: center; }
-  .footer-col:nth-child(3) { text-align: right; }
+  #detail-title-en .connector { font-weight: 400; }
+  #detail-title-ko {
+    font-size: clamp(14px, 2.2vw, 36px);
+    font-weight: 700; letter-spacing: 0.02em; margin-top: 2px;
+  }
+
+  /* 바디: 사이드바 | 텍스트 | 이미지 */
+  #detail-body { flex: 1; display: flex; overflow: hidden; }
+
+  /* 번호 사이드바 */
+  #detail-sidebar {
+    width: 56px; flex-shrink: 0;
+    padding: 8px 0 16px 20px;
+    overflow-y: auto; scrollbar-width: none;
+    display: flex; flex-direction: column;
+  }
+  #detail-sidebar::-webkit-scrollbar { display: none; }
+
+  .back-btn {
+    display: block; font-size: 11px; color: #bbb;
+    margin-bottom: 14px; cursor: pointer;
+    text-decoration: none; transition: color 0.2s;
+  }
+  .back-btn:hover { color: #000; }
+
+  .sidebar-num {
+    display: block; font-size: 9px; line-height: 2.0;
+    color: #bbb; cursor: pointer;
+    letter-spacing: 0.02em; text-decoration: none;
+    transition: color 0.15s;
+  }
+  .sidebar-num:hover { color: #000; }
+  .sidebar-num.active { color: #000; font-weight: 700; }
+
+  /* 텍스트 영역 */
+  #detail-content {
+    flex: 0 0 36%; padding: 4px 28px 16px 8px;
+    overflow-y: auto; scrollbar-width: none;
+  }
+  #detail-content::-webkit-scrollbar { display: none; }
+
+  #detail-artist-name {
+    font-size: 13px; font-weight: 700;
+    letter-spacing: 0.02em; margin-bottom: 3px;
+  }
+  #detail-handle {
+    font-size: 10px; color: #888;
+    letter-spacing: 0.02em; margin-bottom: 22px;
+  }
+  #detail-desc-ko {
+    font-size: 11.5px; line-height: 1.9;
+    letter-spacing: 0.02em; margin-bottom: 22px; font-weight: 500;
+  }
+  #detail-desc-en {
+    font-size: 10px; line-height: 1.9; color: #333; letter-spacing: 0.01em;
+  }
+
+  /* 이미지 영역 */
+  #detail-images {
+    flex: 1; overflow: hidden;
+    padding: 0 20px 0 0;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+
+  .img-row { display: flex; gap: 8px; flex: 1; min-height: 0; }
+  .img-box {
+    flex: 1; background: #f0f0f0; overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 9px; color: #ccc; letter-spacing: 0.08em;
+  }
+  .img-box img { width: 100%; height: 100%; object-fit: cover; display: block; }
 </style>
 </head>
 <body>
 
-<!-- TITLE -->
-<div id="title-section">
-  <h1>This is not an exhibition</h1>
-  <h2>이것은 전시가 아니다</h2>
+<!-- ══════════════════════════
+     LANDING VIEW
+════════════════════════════ -->
+<div id="view-landing" class="view">
+  <div id="title-section">
+    <h1>This is not an exhibition</h1>
+    <h2>이것은 전시가 아니다</h2>
+  </div>
+  <div id="stage"><svg id="svg-lines"></svg></div>
+  <footer class="footer-bar">
+    <div class="footer-col">홍익대학교 시각디자인과(23)<br>지도교수 석재원</div>
+    <div class="footer-col">개인별 도슨트 참여 안내<br>2025년 4월 20일(월) — 4월 24일(금)<br>홍익대학교 홍문관 7층 777</div>
+    <div class="footer-col">개인별 도슨트 참여 안내<br>2025년 4월 20일(월) — 4월 24일(금)<br>홍익대학교 홍문관 7층 777</div>
+  </footer>
 </div>
 
-<!-- STAGE -->
-<div id="stage">
-  <svg id="svg-lines"></svg>
-</div>
+<!-- ══════════════════════════
+     DETAIL VIEW
+════════════════════════════ -->
+<div id="view-detail" class="view hidden">
+  <div id="detail-header">
+    <div id="detail-title-en"></div>
+    <div id="detail-title-ko"></div>
+  </div>
+  <div id="detail-body">
 
-<!-- FOOTER -->
-<footer id="footer">
-  <div class="footer-col">
-    홍익대학교 시각디자인과(23)<br>
-    지도교수 석재원
+    <!-- 번호 사이드바 -->
+    <aside id="detail-sidebar">
+      <a class="back-btn" href="#">←</a>
+    </aside>
+
+    <!-- 텍스트 -->
+    <div id="detail-content">
+      <div id="detail-artist-name"></div>
+      <div id="detail-handle"></div>
+      <div id="detail-desc-ko"></div>
+      <div id="detail-desc-en"></div>
+    </div>
+
+    <!-- 이미지 -->
+    <div id="detail-images"></div>
   </div>
-  <div class="footer-col">
-    개인별 도슨트 참여 안내<br>
-    2025년 4월 20일(월) — 4월 24일(금)<br>
-    홍익대학교 홍문관 7층 777
-  </div>
-  <div class="footer-col">
-    개인별 도슨트 참여 안내<br>
-    2025년 4월 20일(월) — 4월 24일(금)<br>
-    홍익대학교 홍문관 7층 777
-  </div>
-</footer>
+  <footer class="footer-bar">
+    <div class="footer-col">홍익대학교 시각디자인과(23)<br>지도교수 석재원</div>
+    <div class="footer-col">개인별 도슨트 참여 안내<br>2025년 4월 20일(월) — 4월 24일(금)<br>홍익대학교 홍문관 7층 777</div>
+    <div class="footer-col">개인별 도슨트 참여 안내<br>2025년 4월 20일(월) — 4월 24일(금)<br>홍익대학교 홍문관 7층 777</div>
+  </footer>
+</div>
 
 <script>
-/* ─────────────────────────────
-   DATA — 27 artists
-───────────────────────────── */
+/* ══════════════════════════════════════
+   ARTIST DATA
+══════════════════════════════════════ */
 const artists = [
   { a: "모기",          name: "김세민",   b: "예술가" },
   { a: "캡챠",          name: "여단아",   b: "로봇의 메시지" },
@@ -176,30 +253,139 @@ const artists = [
   { a: "페퍼민트 캔디", name: "XU NING",  b: "국제 통용 화폐" },
 ];
 
+/* ── 작가별 상세 콘텐츠
+   images: 이미지 파일 경로 배열 (e.g. ['images/juhyun_1.jpg'])
+   다른 작가 내용은 아래 형식으로 추가하면 됩니다 ── */
+const artistDetail = {
+  16: { // 김주현 (0-index)
+    handle: "@3_jhn_3",
+    descKo: `길 위의 단차와 요철, 마찰과 흔들림은 도로가 지닌 정보가 되며, 보드는 길 위를 주행하며 이를 몸의 움직임으로 변환한다. 『Skateboard is a Scanner』는 19개의 바닥 이미지와 스캔된 기록을 통해, 보드를 타고 길을 읽는 감각을 전달한다.`,
+    descEn: `The differences in level, uneven textures, friction, and vibrations of the road become information held by its surface, and as the board moves across it, it translates them into bodily movement. 『Skateboard is a Scanner』 conveys the sensation of reading the road through a board, through 19 images of ground surfaces and scanned records.`,
+    images: [ /* 'images/juhyun_1.jpg', 'images/juhyun_2.jpg' */ ]
+  },
+};
+
 const N = artists.length;
-// A축 = 13%, 작업자 = 50%, B축 = 87%
 const COL_FRACS = [0.13, 0.50, 0.87];
 const PAD_V = 22;
 
-/* ─────────────────────────────
-   STATE
-───────────────────────────── */
-let activeIdx    = null;
-let prevActiveIdx = -2;
-let stageW = 0, stageH = 0;
-let colX   = [];
+/* ══════════════════════════════════════
+   KOREAN GRAMMAR
+══════════════════════════════════════ */
+function hasJongseong(ch) {
+  const c = ch.charCodeAt(0);
+  return c >= 0xAC00 && c <= 0xD7A3 && (c - 0xAC00) % 28 !== 0;
+}
+function particle(word) { return hasJongseong(word[word.length - 1]) ? '은' : '는'; }
+function ending(word)   { return hasJongseong(word[word.length - 1]) ? '이다' : '다'; }
 
-const pos     = [new Array(N).fill(0), new Array(N).fill(0), new Array(N).fill(0)];
+function makeTitles(ar) {
+  return {
+    en: `${ar.a}<span class="connector"> is a </span>${ar.b}`,
+    ko: `${ar.a}${particle(ar.a)} ${ar.b}${ending(ar.b)}`
+  };
+}
+
+/* ══════════════════════════════════════
+   ROUTING
+══════════════════════════════════════ */
+function getRoute() {
+  const h = window.location.hash.replace('#', '');
+  const n = parseInt(h);
+  if (!isNaN(n) && n >= 1 && n <= N) return { page: 'detail', idx: n - 1 };
+  return { page: 'landing' };
+}
+
+function render() {
+  const r = getRoute();
+  if (r.page === 'detail') {
+    document.getElementById('view-landing').classList.add('hidden');
+    document.getElementById('view-detail').classList.remove('hidden');
+    renderDetail(r.idx);
+  } else {
+    document.getElementById('view-detail').classList.add('hidden');
+    document.getElementById('view-landing').classList.remove('hidden');
+  }
+}
+window.addEventListener('hashchange', render);
+
+/* ══════════════════════════════════════
+   DETAIL PAGE
+══════════════════════════════════════ */
+function renderDetail(idx) {
+  const ar  = artists[idx];
+  const det = artistDetail[idx] || {};
+  const { en, ko } = makeTitles(ar);
+
+  document.getElementById('detail-title-en').innerHTML = en;
+  document.getElementById('detail-title-ko').textContent = ko;
+  document.getElementById('detail-artist-name').textContent = ar.name;
+  document.getElementById('detail-handle').textContent = det.handle || '';
+  document.getElementById('detail-desc-ko').textContent = det.descKo || '';
+  document.getElementById('detail-desc-en').textContent = det.descEn || '';
+
+  /* 사이드바 번호 */
+  const sidebar = document.getElementById('detail-sidebar');
+  // back 버튼만 남기고 번호 재생성
+  sidebar.innerHTML = '<a class="back-btn" href="#">←</a>';
+  artists.forEach((_, i) => {
+    const a = document.createElement('a');
+    a.className = 'sidebar-num' + (i === idx ? ' active' : '');
+    a.textContent = i + 1;
+    a.href = '#' + (i + 1);
+    sidebar.appendChild(a);
+  });
+  sidebar.querySelector('.active')?.scrollIntoView({ block: 'center' });
+
+  /* 이미지 */
+  const imgs = det.images || [];
+  const container = document.getElementById('detail-images');
+  container.innerHTML = '';
+
+  if (imgs.length === 0) {
+    // 이미지 플레이스홀더
+    const r1 = makeImgRow([''], '1.6');
+    const r2 = makeImgRow(['', ''], '1');
+    container.appendChild(r1);
+    container.appendChild(r2);
+  } else {
+    imgs.forEach(src => {
+      const row = makeImgRow([src], '1');
+      container.appendChild(row);
+    });
+  }
+}
+
+function makeImgRow(srcs, flexVal) {
+  const row = document.createElement('div');
+  row.className = 'img-row';
+  row.style.flex = flexVal;
+  srcs.forEach(src => {
+    const box = document.createElement('div');
+    box.className = 'img-box';
+    if (src) {
+      const img = document.createElement('img');
+      img.src = src;
+      box.appendChild(img);
+    } else {
+      box.textContent = 'IMAGE';
+    }
+    row.appendChild(box);
+  });
+  return row;
+}
+
+/* ══════════════════════════════════════
+   LANDING — STATE
+══════════════════════════════════════ */
+let stageW = 0, stageH = 0, colX = [];
+const pos = [new Array(N).fill(0), new Array(N).fill(0), new Array(N).fill(0)];
 const itemEls = [[], [], []];
-let linePathsA  = [], linePathsB  = [];
-let clickPathsA = [], clickPathsB = [];
+let linePathsA = [], linePathsB = [], clickPathsA = [], clickPathsB = [];
 
 const stage = document.getElementById('stage');
 const svgEl = document.getElementById('svg-lines');
 
-/* ─────────────────────────────
-   UTILS
-───────────────────────────── */
 function shuffle(arr) {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
@@ -209,88 +395,56 @@ function shuffle(arr) {
   return a;
 }
 
-/* ─────────────────────────────
-   LAYOUT
-───────────────────────────── */
 function computeLayout() {
-  stageW = stage.offsetWidth;
-  stageH = stage.offsetHeight;
-  colX   = COL_FRACS.map(f => f * stageW);
+  stageW = stage.offsetWidth; stageH = stage.offsetHeight;
+  colX = COL_FRACS.map(f => f * stageW);
   svgEl.setAttribute('viewBox', `0 0 ${stageW} ${stageH}`);
-  svgEl.setAttribute('width',   stageW);
-  svgEl.setAttribute('height',  stageH);
+  svgEl.setAttribute('width', stageW); svgEl.setAttribute('height', stageH);
 }
 
 function assignPositions(col, order) {
-  const span = stageH - PAD_V * 2;
-  const step = N > 1 ? span / (N - 1) : 0;
-  order.forEach((artistIdx, rank) => {
-    pos[col][artistIdx] = PAD_V + rank * step;
-  });
+  const step = N > 1 ? (stageH - PAD_V * 2) / (N - 1) : 0;
+  order.forEach((ai, rank) => { pos[col][ai] = PAD_V + rank * step; });
 }
 
-/* ─────────────────────────────
-   INTERACTION
-───────────────────────────── */
-function setActive(idx) {
-  if (activeIdx === idx) return;
-  activeIdx = idx;
-  updateStyles();
-}
+/* 클릭 → 상세 페이지 이동 */
+function goToArtist(idx) { window.location.hash = idx + 1; }
 
-function updateStyles() {
-  for (let col = 0; col < 3; col++) {
-    for (let i = 0; i < N; i++) {
-      const el = itemEls[col][i];
-      if (!el) continue;
-      el.classList.remove('active', 'dimmed');
-      if (activeIdx !== null) {
-        if (i === activeIdx) el.classList.add('active');
-        else                 el.classList.add('dimmed');
-      }
-    }
-  }
-}
-
-/* ─────────────────────────────
-   BUILD DOM
-───────────────────────────── */
+/* ══════════════════════════════════════
+   LANDING — BUILD DOM
+══════════════════════════════════════ */
 function buildDOM() {
   stage.querySelectorAll('.item, .col-axis, .col-arrow').forEach(e => e.remove());
   svgEl.innerHTML = '';
-  linePathsA = []; linePathsB = [];
-  clickPathsA = []; clickPathsB = [];
+  linePathsA = []; linePathsB = []; clickPathsA = []; clickPathsB = [];
   for (let c = 0; c < 3; c++) itemEls[c] = [];
 
-  // 축선 + 화살표
+  /* 축선 + 화살표 */
   for (let col = 0; col < 3; col++) {
-    const axis = document.createElement('div');
-    axis.className = 'col-axis';
-    axis.style.left = colX[col] + 'px';
-    stage.appendChild(axis);
-
-    ['up', 'dn'].forEach(dir => {
+    const ax = document.createElement('div');
+    ax.className = 'col-axis'; ax.style.left = colX[col] + 'px';
+    stage.appendChild(ax);
+    ['up','dn'].forEach(d => {
       const el = document.createElement('div');
-      el.className = `col-arrow ${dir}`;
+      el.className = `col-arrow ${d}`;
       el.style.left = colX[col] + 'px';
-      el.textContent = dir === 'up' ? '↑' : '↓';
+      el.textContent = d === 'up' ? '↑' : '↓';
       stage.appendChild(el);
     });
   }
 
-  // SVG 라인
+  /* SVG 라인 */
   for (let i = 0; i < N; i++) {
     [linePathsA, linePathsB].forEach(arr => {
       const p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
       p.setAttribute('fill', 'none');
       p.setAttribute('stroke', '#000');
       p.setAttribute('stroke-width', '0.7');
-      svgEl.appendChild(p);
-      arr.push(p);
+      svgEl.appendChild(p); arr.push(p);
     });
   }
 
-  // 클릭 오버레이
+  /* 클릭 오버레이 */
   for (let i = 0; i < N; i++) {
     [clickPathsA, clickPathsB].forEach(arr => {
       const p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
@@ -299,111 +453,62 @@ function buildDOM() {
       p.setAttribute('stroke-width', '14');
       p.style.cursor = 'pointer';
       p.style.pointerEvents = 'stroke';
-      const ci = i;
-      p.addEventListener('click', () => setActive(ci));
-      svgEl.appendChild(p);
-      arr.push(p);
+      const ci = i; p.addEventListener('click', () => goToArtist(ci));
+      svgEl.appendChild(p); arr.push(p);
     });
   }
 
-  // 컬럼별 transform & 정렬
-  // A: 텍스트가 축선 왼쪽에 오른맞춤
-  // 작업자: 축선 중앙
-  // B: 텍스트가 축선 오른쪽에 왼맞춤
-  const transforms   = [
-    'translateX(-100%) translateY(-50%)',
-    'translateX(-50%)  translateY(-50%)',
-    'translateX(0%)    translateY(-50%)',
-  ];
+  /* 아이템 요소 */
+  const transforms   = ['translateX(-100%) translateY(-50%)', 'translateX(-50%) translateY(-50%)', 'translateX(0%) translateY(-50%)'];
   const justifys     = ['flex-end', 'center', 'flex-start'];
   const textAligns   = ['right', 'center', 'left'];
-  const widths       = [
-    Math.max(60, colX[0] - 6) + 'px',
-    '110px',
-    Math.max(60, stageW - colX[2] - 6) + 'px',
-  ];
+  const widths       = [Math.max(60, colX[0]-6)+'px', '110px', Math.max(60, stageW-colX[2]-6)+'px'];
 
   for (let col = 0; col < 3; col++) {
     for (let i = 0; i < N; i++) {
       const el = document.createElement('div');
       el.className = 'item';
-      el.style.left           = colX[col] + 'px';
-      el.style.top            = '0px';
-      el.style.transform      = transforms[col];
-      el.style.width          = widths[col];
-      el.style.justifyContent = justifys[col];
+      el.style.left = colX[col] + 'px'; el.style.top = '0px';
+      el.style.transform = transforms[col];
+      el.style.width = widths[col]; el.style.justifyContent = justifys[col];
 
       const label = document.createElement('div');
       label.className = 'item-label';
       label.style.textAlign = textAligns[col];
-      label.textContent = col === 0 ? artists[i].a
-                        : col === 1 ? artists[i].name
-                        :             artists[i].b;
+      label.textContent = col === 0 ? artists[i].a : col === 1 ? artists[i].name : artists[i].b;
       el.appendChild(label);
 
-      const ci = i;
-      el.addEventListener('click', () => setActive(ci));
-      stage.appendChild(el);
-      itemEls[col][i] = el;
+      const ci = i; el.addEventListener('click', () => goToArtist(ci));
+      stage.appendChild(el); itemEls[col][i] = el;
     }
   }
 }
 
-/* ─────────────────────────────
-   DRAW LINES
-───────────────────────────── */
+/* ══════════════════════════════════════
+   DRAW LINES + ANIMATION
+══════════════════════════════════════ */
 function drawLines() {
   for (let i = 0; i < N; i++) {
-    const yA = pos[0][i], yM = pos[1][i], yB = pos[2][i];
-    const isActive = (i === activeIdx);
-    const isDimmed = (activeIdx !== null && !isActive);
-    const color = isDimmed ? '#d0d0d0' : '#000';
-    const width = isActive ? '1.6' : '0.7';
-
-    // 라인은 각 축선 사이를 직선으로 연결
-    const dA = `M ${colX[0]} ${yA} L ${colX[1]} ${yM}`;
-    const dB = `M ${colX[1]} ${yM} L ${colX[2]} ${yB}`;
-
-    linePathsA[i].setAttribute('d', dA);
-    linePathsA[i].setAttribute('stroke', color);
-    linePathsA[i].setAttribute('stroke-width', width);
-    linePathsB[i].setAttribute('d', dB);
-    linePathsB[i].setAttribute('stroke', color);
-    linePathsB[i].setAttribute('stroke-width', width);
-    clickPathsA[i].setAttribute('d', dA);
-    clickPathsB[i].setAttribute('d', dB);
-  }
-
-  // 선택된 라인을 SVG 맨 위로
-  if (activeIdx !== prevActiveIdx) {
-    prevActiveIdx = activeIdx;
-    if (activeIdx !== null) {
-      svgEl.appendChild(linePathsA[activeIdx]);
-      svgEl.appendChild(linePathsB[activeIdx]);
-      svgEl.appendChild(clickPathsA[activeIdx]);
-      svgEl.appendChild(clickPathsB[activeIdx]);
-    }
+    const dA = `M ${colX[0]} ${pos[0][i]} L ${colX[1]} ${pos[1][i]}`;
+    const dB = `M ${colX[1]} ${pos[1][i]} L ${colX[2]} ${pos[2][i]}`;
+    linePathsA[i].setAttribute('d', dA); linePathsB[i].setAttribute('d', dB);
+    clickPathsA[i].setAttribute('d', dA); clickPathsB[i].setAttribute('d', dB);
   }
 }
 
-/* ─────────────────────────────
-   DRAW-IN ANIMATION
-───────────────────────────── */
-const DRAW_STAGGER  = 28;
-const DRAW_DURATION = 220;
+const DRAW_STAGGER = 28, DRAW_DURATION = 220;
 let drawStart = null;
-
-function easeOut(t) { return 1 - Math.pow(1 - t, 2); }
+function easeOut(t) { return 1 - Math.pow(1-t, 2); }
 
 function startDrawAnim() {
   drawStart = performance.now();
   for (let i = 0; i < N; i++) {
-    linePathsA[i]._len = linePathsA[i].getTotalLength() || 1;
-    linePathsB[i]._len = linePathsB[i].getTotalLength() || 1;
-    linePathsA[i].setAttribute('stroke-dasharray',  linePathsA[i]._len);
-    linePathsA[i].setAttribute('stroke-dashoffset', linePathsA[i]._len);
-    linePathsB[i].setAttribute('stroke-dasharray',  linePathsB[i]._len);
-    linePathsB[i].setAttribute('stroke-dashoffset', linePathsB[i]._len);
+    ['A','B'].forEach((ab, j) => {
+      const p = ab === 'A' ? linePathsA[i] : linePathsB[i];
+      p._len = p.getTotalLength() || 1;
+      p.setAttribute('stroke-dasharray', p._len);
+      p.setAttribute('stroke-dashoffset', p._len);
+    });
   }
 }
 
@@ -411,40 +516,31 @@ function updateDrawAnim(now) {
   if (!drawStart) return;
   let allDone = true;
   for (let i = 0; i < N; i++) {
-    [[linePathsA[i], i * 2], [linePathsB[i], i * 2 + 1]].forEach(([path, idx]) => {
-      const elapsed = now - drawStart - idx * DRAW_STAGGER;
-      const len = path._len || 1;
-      if (elapsed < 0) {
+    [[linePathsA[i], i*2],[linePathsB[i], i*2+1]].forEach(([p, seq]) => {
+      const el = now - drawStart - seq * DRAW_STAGGER;
+      const len = p._len || 1;
+      if (el < 0) { allDone = false; p.setAttribute('stroke-dashoffset', len); }
+      else if (el < DRAW_DURATION) {
         allDone = false;
-        path.setAttribute('stroke-dashoffset', len);
-      } else if (elapsed < DRAW_DURATION) {
-        allDone = false;
-        path.setAttribute('stroke-dashoffset', len * (1 - easeOut(elapsed / DRAW_DURATION)));
-      } else {
-        path.removeAttribute('stroke-dasharray');
-        path.removeAttribute('stroke-dashoffset');
-      }
+        p.setAttribute('stroke-dashoffset', len*(1-easeOut(el/DRAW_DURATION)));
+      } else { p.removeAttribute('stroke-dasharray'); p.removeAttribute('stroke-dashoffset'); }
     });
   }
   if (allDone) drawStart = null;
 }
 
-/* ─────────────────────────────
-   RAF LOOP
-───────────────────────────── */
 function rafLoop() {
   const now = performance.now();
-  drawLines();
-  updateDrawAnim(now);
+  drawLines(); updateDrawAnim(now);
   requestAnimationFrame(rafLoop);
 }
 
-/* ─────────────────────────────
+/* ══════════════════════════════════════
    INIT
-───────────────────────────── */
+══════════════════════════════════════ */
 function placeInitial() {
   for (let col = 0; col < 3; col++) {
-    const order = shuffle(Array.from({ length: N }, (_, i) => i));
+    const order = shuffle(Array.from({length: N}, (_, i) => i));
     assignPositions(col, order);
     for (let i = 0; i < N; i++) {
       if (itemEls[col][i]) {
@@ -459,22 +555,16 @@ function init() {
   computeLayout();
   buildDOM();
   placeInitial();
-
   requestAnimationFrame(() => {
-    drawLines();
-    startDrawAnim();
+    drawLines(); startDrawAnim();
     requestAnimationFrame(rafLoop);
   });
 }
 
-window.addEventListener('resize', () => {
-  computeLayout();
-  buildDOM();
-  placeInitial();
-  updateStyles();
-});
+window.addEventListener('resize', () => { computeLayout(); buildDOM(); placeInitial(); });
 
 init();
+render();
 </script>
 </body>
 </html>
