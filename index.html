@@ -116,7 +116,7 @@ body {
 
 .item { position: absolute; cursor: pointer; display: flex; align-items: center; }
 .item-label {
-  font-size: 13px; white-space: nowrap;
+  font-size: 12px; white-space: nowrap;
   line-height: 1;
   transition: color 0.3s, font-weight 0.2s;
 }
@@ -585,7 +585,7 @@ function buildDOM() {
   const textAligns = ['left','center','right'];
   const widths     = [
     Math.max(60, colX[0] - PAD_SIDE)+'px', '110px',
-    Math.max(60, stageW - colX[2] - PAD_SIDE)+'px',
+    Math.max(60, stageW - colX[2] - 4)+'px',  /* B col: 4px 여백만 */
   ];
 
   for (let col=0; col<3; col++) {
