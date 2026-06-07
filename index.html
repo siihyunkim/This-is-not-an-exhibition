@@ -554,14 +554,16 @@ function buildDOM() {
   }
 
   /* 아이템 요소 */
-  const transforms = [
-    'translateX(-100%) translateY(-50%)',
-    'translateX(-50%)  translateY(-50%)',
-    'translateX(0%)    translateY(-50%)',
-  ];
-  const justifys   = ['flex-end','center','flex-start'];
-  const textAligns = ['right','center','left'];
   const PAD_SIDE = 14; // 사이드바 padding-left 14px 와 통일
+  // A열: 왼쪽 14px에서 시작 → 오른쪽(axis)으로 뻗음
+  // B열: 오른쪽 14px에서 시작 → 왼쪽(axis)으로 뻗음
+  const transforms = [
+    'translateY(-50%)',                       // A: left:14px 고정
+    'translateX(-50%)  translateY(-50%)',
+    'translateY(-50%)',                       // B: left:colX[2] 고정
+  ];
+  const justifys   = ['flex-start','center','flex-end'];
+  const textAligns = ['left','center','right'];
   const widths     = [
     Math.max(60, colX[0] - PAD_SIDE)+'px', '110px',
     Math.max(60, stageW - colX[2] - PAD_SIDE)+'px',
@@ -571,7 +573,8 @@ function buildDOM() {
     for (let i=0; i<N; i++) {
       const el=document.createElement('div');
       el.className='item' + (col===1 ? ' artist-col' : '');
-      el.style.left=colX[col]+'px'; el.style.top='0px';
+      // A열(col=0)만 left를 PAD_SIDE(14px)로 고정, 나머지는 axis 기준
+      el.style.left=(col===0 ? PAD_SIDE : colX[col])+'px'; el.style.top='0px';
       el.style.transform=transforms[col];
       el.style.width=widths[col]; el.style.justifyContent=justifys[col];
 
