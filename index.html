@@ -348,7 +348,10 @@ const artistDetail = {
     handle: "@3_jhn_3",
     descKo: `길 위의 단차와 요철, 마찰과 흔들림은 도로가 지닌 정보가 되며, 보드는 길 위를 주행하며 이를 몸의 움직임으로 변환한다. 『Skateboard is a Scanner』는 19개의 바닥 이미지와 스캔된 기록을 통해, 보드를 타고 길을 읽는 감각을 전달한다.`,
     descEn: `The differences in level, uneven textures, friction, and vibrations of the road become information held by its surface, and as the board moves across it, it translates them into bodily movement. 『Skateboard is a Scanner』 conveys the sensation of reading the road through a board, through 19 images of ground surfaces and scanned records.`,
-    images: [ /* 'images/juhyun_1.jpg', 'images/juhyun_2.jpg' */ ]
+    images: [
+      'images/김주현_스케이트보드_01.jpg',
+      'images/김주현_Thumbnail.jpg'
+    ]
   },
 };
 
@@ -422,10 +425,15 @@ function renderDetail(idx) {
   const dr = document.getElementById('detail-right');
   dr.innerHTML = '';
   if (imgs.length === 0) {
-    const r1 = mkRow([''], '1.6'); const r2 = mkRow(['',''], '1');
-    dr.appendChild(r1); dr.appendChild(r2);
+    // 플레이스홀더: 상단 큰 칸 + 하단 2칸
+    dr.appendChild(mkRow([''], '1.6'));
+    dr.appendChild(mkRow(['', ''], '1'));
+  } else if (imgs.length === 1) {
+    dr.appendChild(mkRow([imgs[0]], '1'));
   } else {
-    imgs.forEach(src => dr.appendChild(mkRow([src], '1')));
+    // 첫 이미지 크게(1.6), 나머지 한 줄에
+    dr.appendChild(mkRow([imgs[0]], '1.6'));
+    dr.appendChild(mkRow(imgs.slice(1), '1'));
   }
 }
 
