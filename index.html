@@ -373,7 +373,7 @@ const artistDetail = {
 };
 
 const N = artists.length;
-const COL_FRACS = [0.075, 0.50, 0.925];
+const COL_FRACS = [0.065, 0.50, 0.935];
 const PAD_V = 5;
 
 /* ══════════════════════════════════════
@@ -579,29 +579,36 @@ function buildDOM() {
   }
 
   /* 아이템 요소 */
-  const PAD_SIDE = 14; // 사이드바 padding-left 14px 와 통일
-  // A열: 왼쪽 14px에서 시작 → 오른쪽(axis)으로 뻗음
-  // B열: 오른쪽 14px에서 시작 → 왼쪽(axis)으로 뻗음
+  const PAD_SIDE = 14; // 최소 좌우 여백 (피그마 기준)
+  // A열: 0 ~ colX[0], 우측정렬(선에 붙음), 최소 좌여백 PAD_SIDE
+  // B열: colX[2] ~ stageW, 좌측정렬(선에 붙음), 최소 우여백 PAD_SIDE
   const transforms = [
-    'translateY(-50%)',                       // A: left:14px 고정
-    'translateX(-50%)  translateY(-50%)',
-    'translateY(-50%)',                       // B: left:colX[2] 고정
+    'translateY(-50%)',
+    'translateX(-50%) translateY(-50%)',
+    'translateY(-50%)',
   ];
-  const justifys   = ['flex-start','center','flex-end'];
-  const textAligns = ['left','center','right'];
+  const justifys   = ['flex-end','center','flex-start'];
+  const textAligns = ['right','center','left'];
   const widths     = [
-    Math.max(60, colX[0] - PAD_SIDE)+'px', '110px',
-    Math.max(60, stageW - colX[2] - PAD_SIDE)+'px',
+    Math.max(60, colX[0])+'px', '110px',
+    Math.max(60, stageW - colX[2])+'px',
+  ];
+  const lefts = [0, colX[1], colX[2]];
+  const paddings = [
+    {paddingLeft: PAD_SIDE+'px', paddingRight: '0px'},
+    {},
+    {paddingLeft: '0px', paddingRight: PAD_SIDE+'px'},
   ];
 
   for (let col=0; col<3; col++) {
     for (let i=0; i<N; i++) {
       const el=document.createElement('div');
       el.className='item' + (col===1 ? ' artist-col' : '');
-      // A열(col=0)만 left를 PAD_SIDE(14px)로 고정, 나머지는 axis 기준
-      el.style.left=(col===0 ? PAD_SIDE : colX[col])+'px'; el.style.top='0px';
+      el.style.left=lefts[col]+'px'; el.style.top='0px';
       el.style.transform=transforms[col];
       el.style.width=widths[col]; el.style.justifyContent=justifys[col];
+      if (paddings[col].paddingLeft)  el.style.paddingLeft  = paddings[col].paddingLeft;
+      if (paddings[col].paddingRight) el.style.paddingRight = paddings[col].paddingRight;
 
       const label=document.createElement('div');
       label.className='item-label ' + (col===1 ? 'ko' : col===0 ? 'ko' : 'ko');
