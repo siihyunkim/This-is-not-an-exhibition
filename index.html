@@ -50,21 +50,21 @@ body {
 
 /* ── 전시 타이틀 (항상 고정) ── */
 #site-title {
-  position: fixed; top: 0; left: 0; right: 0;
+  position: fixed; top: 10px; left: 0; right: 0;
   z-index: 300; pointer-events: none;
   text-align: center;
+  line-height: 1.05;
 }
 #site-title h1 {
-  position: absolute; top: 10px; left: 0; right: 0;
   font-family: var(--en);
-  font-size: clamp(16px, 2.6vw, 38px);
-  font-weight: 400; letter-spacing: -0.05em; line-height: 1.1;
+  font-size: clamp(20px, 3vw, 50px);
+  font-weight: 400; letter-spacing: -0.05em;
 }
 #site-title h2 {
-  position: absolute; top: 56px; left: 0; right: 0;
   font-family: var(--ko);
-  font-size: clamp(10px, 1.1vw, 16px);
-  font-weight: 300; letter-spacing: -0.09em; line-height: 1;
+  font-size: clamp(16px, 2.4vw, 40px);
+  font-weight: 300; letter-spacing: -0.09em;
+  margin-top: 1px;
 }
 
 /* ── 공통 푸터 ── */
@@ -89,7 +89,7 @@ body {
 /* 랜딩 상단 스페이서 — 고정 타이틀 높이만큼 확보 */
 #title-section {
   flex-shrink: 0;
-  height: 80px;
+  height: 120px;
 }
 
 #stage { flex: 1; position: relative; overflow: hidden; user-select: none; }
@@ -179,7 +179,7 @@ body {
 /* 번호 사이드바 */
 #detail-sidebar {
   width: 38px; flex-shrink: 0;
-  padding: 86px 0 16px 14px; /* 86px: fixed 전시 타이틀 높이 확보 */
+  padding: 120px 0 16px 14px; /* 120px: fixed 전시 타이틀 높이 확보 */
   display: flex; flex-direction: column;
 }
 
@@ -210,7 +210,7 @@ body {
   grid-template-columns: 1fr 1fr;
   grid-template-rows: auto auto auto;
   gap: 0;
-  padding: 86px 24px 24px 0; /* 상단 86px: 전시 타이틀 확보 */
+  padding: 120px 24px 24px 0; /* 상단 120px: 전시 타이틀 확보 */
   align-content: start;
 }
 
