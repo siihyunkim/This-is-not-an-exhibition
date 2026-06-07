@@ -561,9 +561,10 @@ function buildDOM() {
   ];
   const justifys   = ['flex-end','center','flex-start'];
   const textAligns = ['right','center','left'];
+  const PAD_SIDE = 14; // 사이드바 padding-left 14px 와 통일
   const widths     = [
-    Math.max(60, colX[0])+'px', '110px',
-    Math.max(60, stageW-colX[2])+'px',
+    Math.max(60, colX[0] - PAD_SIDE)+'px', '110px',
+    Math.max(60, stageW - colX[2] - PAD_SIDE)+'px',
   ];
 
   for (let col=0; col<3; col++) {
