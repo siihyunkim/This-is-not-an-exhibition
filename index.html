@@ -48,6 +48,25 @@ body {
 }
 .view.hidden { display: none; }
 
+/* ── 전시 타이틀 (항상 고정) ── */
+#site-title {
+  position: fixed; top: 0; left: 0; right: 0;
+  z-index: 300; pointer-events: none;
+  text-align: center;
+}
+#site-title h1 {
+  position: absolute; top: 10px; left: 0; right: 0;
+  font-family: var(--en);
+  font-size: clamp(16px, 2.6vw, 38px);
+  font-weight: 400; letter-spacing: -0.05em; line-height: 1.1;
+}
+#site-title h2 {
+  position: absolute; top: 56px; left: 0; right: 0;
+  font-family: var(--ko);
+  font-size: clamp(10px, 1.1vw, 16px);
+  font-weight: 300; letter-spacing: -0.09em; line-height: 1;
+}
+
 /* ── 공통 푸터 ── */
 .footer-bar {
   flex-shrink: 0;
@@ -67,24 +86,10 @@ body {
 /* ════════════════════════════════
    LANDING
 ════════════════════════════════ */
+/* 랜딩 상단 스페이서 — 고정 타이틀 높이만큼 확보 */
 #title-section {
   flex-shrink: 0;
-  text-align: center;
-  padding: 20px 32px 14px;
-  line-height: 1.1;
-}
-#title-section h1 {
-  font-family: var(--en);
-  font-size: clamp(20px, 3vw, 50px);
-  font-weight: 400; /* NHaasGroteskDSPro-55Rg */
-  letter-spacing: -0.05em;
-}
-#title-section h2 {
-  font-family: var(--ko);
-  font-size: clamp(16px, 2.4vw, 40px);
-  font-weight: 300;
-  letter-spacing: -0.09em;
-  margin-top: 1px;
+  height: 80px;
 }
 
 #stage { flex: 1; position: relative; overflow: hidden; user-select: none; }
@@ -136,26 +141,22 @@ body {
 /* hidden 상태 강제 — ID 선택자보다 높은 우선순위 */
 #view-detail.hidden { display: none; }
 
-/* 타이틀: 화면 상단 고정, 이미지 위에 오버레이 */
-#detail-top {
-  position: fixed; top: 0; left: 0; right: 0;
-  z-index: 200;
-  text-align: center;
-  padding: 20px 32px 14px;
-  line-height: 1.1;
-  pointer-events: none;
-  background: transparent;
+/* 상세 작품 제목 — 콘텐츠 내부 상단 */
+#detail-work-title {
+  grid-column: 1 / -1; grid-row: 1;
+  padding-bottom: 20px;
+  border-bottom: 0.5px solid #e0e0e0;
+  margin-bottom: 16px;
 }
-#detail-top h1 {
+#detail-work-en {
   font-family: var(--en);
-  font-size: clamp(20px, 3vw, 50px);
-  font-weight: 400; /* NHaasGroteskDSPro-55Rg */
-  letter-spacing: -0.05em;
+  font-size: clamp(14px, 1.8vw, 26px);
+  font-weight: 400; letter-spacing: -0.05em; line-height: 1.15;
 }
-#detail-top h2 {
+#detail-work-ko {
   font-family: var(--ko);
-  font-size: clamp(16px, 2.4vw, 40px);
-  font-weight: 300; letter-spacing: -0.09em; margin-top: 1px;
+  font-size: clamp(11px, 1.4vw, 20px);
+  font-weight: 300; letter-spacing: -0.09em; margin-top: 2px;
 }
 
 /* 바디: 좌우 나란히, 페이지 플로우 */
@@ -178,7 +179,7 @@ body {
 /* 번호 사이드바 */
 #detail-sidebar {
   width: 38px; flex-shrink: 0;
-  padding: 130px 0 16px 14px; /* 130px: fixed 타이틀 높이 확보 */
+  padding: 86px 0 16px 14px; /* 86px: fixed 전시 타이틀 높이 확보 */
   display: flex; flex-direction: column;
 }
 
@@ -202,18 +203,19 @@ body {
 .sidebar-num.active { color: #000; font-weight: 700; }
 
 /* 콘텐츠 그리드:
-   좌열 = 이름+아이디 / 우열 = 한글설명↑ 영어설명↓ */
+   row1 = 작품제목(full-span) / row2,3 = 좌:이름+아이디 / 우:설명 */
 #detail-content {
   flex: 1;
   display: grid;
   grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto auto auto;
   gap: 0;
-  padding: 130px 24px 24px 0; /* 상단 130px: 타이틀 확보 */
+  padding: 86px 24px 24px 0; /* 상단 86px: 전시 타이틀 확보 */
   align-content: start;
 }
 
 /* 작가 정보 — 좌열 */
-#artist-info { padding-left: 12px; grid-column: 1; grid-row: 1; }
+#artist-info { padding-left: 12px; grid-column: 1; grid-row: 2; }
 #detail-artist-name {
   font-family: var(--ko);
   font-size: 15px; font-weight: 700;
@@ -231,7 +233,7 @@ body {
   font-size: 15px; font-weight: 400;
   line-height: 1.55; letter-spacing: -0.09em;
   padding-left: 12px; padding-right: 20px;
-  grid-column: 2; grid-row: 1;
+  grid-column: 2; grid-row: 2;
 }
 
 /* 영어 설명 — 우열 하단 */
@@ -241,7 +243,7 @@ body {
   line-height: 1.55; letter-spacing: -0.02em;
   color: #222;
   padding-left: 12px; margin-top: 20px;
-  grid-column: 2; grid-row: 2;
+  grid-column: 2; grid-row: 3;
 }
 
 /* ── 오른쪽 패널: 페이지 스크롤, 이미지 풀 높이 ── */
@@ -268,13 +270,18 @@ body {
 <body>
 
 <!-- ══════════════════════════════
+     전시 타이틀 (항상 고정)
+══════════════════════════════ -->
+<div id="site-title">
+  <h1>This is not an exhibition</h1>
+  <h2>이것은 전시가 아니다</h2>
+</div>
+
+<!-- ══════════════════════════════
      LANDING
 ══════════════════════════════ -->
 <div id="view-landing" class="view">
-  <div id="title-section">
-    <h1>This is not an exhibition</h1>
-    <h2>이것은 전시가 아니다</h2>
-  </div>
+  <div id="title-section"></div>
   <div id="stage"><svg id="svg-lines"></svg></div>
   <footer class="footer-bar">
     <div class="footer-col">홍익대학교 시각디자인과<br>사회문화적디자인스튜디오(3)<br>지도교수 석재원</div>
@@ -288,10 +295,6 @@ body {
      DETAIL
 ══════════════════════════════ -->
 <div id="view-detail" class="view hidden">
-  <div id="detail-top">
-    <h1>This is not an exhibition</h1>
-    <h2>이것은 전시가 아니다</h2>
-  </div>
   <div id="detail-body">
 
     <!-- 왼쪽: sticky 패널 (사이드바 + 콘텐츠 + 푸터) -->
@@ -301,6 +304,11 @@ body {
           <a class="back-btn" href="#">←</a>
         </aside>
         <div id="detail-content">
+          <!-- 작품 제목 (전체 열 span) -->
+          <div id="detail-work-title">
+            <div id="detail-work-en"></div>
+            <div id="detail-work-ko"></div>
+          </div>
           <!-- 좌열: 이름+아이디 -->
           <div id="artist-info">
             <div id="detail-artist-name"></div>
@@ -420,8 +428,8 @@ function renderDetail(idx) {
   const ar  = artists[idx];
   const det = artistDetail[idx] || {};
 
-  document.querySelector('#detail-top h1').textContent = det.enTitle || `${ar.a} is a ${ar.b}`;
-  document.querySelector('#detail-top h2').textContent = `${ar.a}${prt(ar.a)} ${ar.b}${end(ar.b)}`;
+  document.getElementById('detail-work-en').textContent = det.enTitle || `${ar.a} is a ${ar.b}`;
+  document.getElementById('detail-work-ko').textContent = `${ar.a}${prt(ar.a)} ${ar.b}${end(ar.b)}`;
   document.getElementById('detail-artist-name').textContent = ar.name;
   document.getElementById('detail-handle').textContent = det.handle || '';
   document.getElementById('detail-desc-ko').textContent = det.descKo || '';
