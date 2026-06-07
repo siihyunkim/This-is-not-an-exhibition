@@ -52,8 +52,8 @@ body {
 .footer-bar {
   flex-shrink: 0;
   display: flex; align-items: flex-end;
-  padding: 10px 28px 16px;
-  gap: 40px;
+  padding: 10px 20px 16px;
+  gap: 32px;
 }
 .footer-col {
   font-family: var(--ko);
@@ -195,30 +195,13 @@ body {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 0;
-  padding: 36px 24px 24px 12px;
+  padding: 22px 24px 24px 12px;
   overflow-y: auto; scrollbar-width: none;
   align-content: start;
 }
 #detail-content::-webkit-scrollbar { display: none; }
 
-/* 제목 그룹 (Ko + En 묶음, 좌측) */
-#title-group {
-  grid-column: 1;
-  padding-right: 20px;
-}
-#work-title-ko {
-  font-family: var(--ko);
-  font-size: 15px; font-weight: 700;
-  letter-spacing: -0.09em; line-height: 1.4;
-}
-#work-title-en {
-  font-family: var(--en);
-  font-size: 15px; font-weight: 700;
-  letter-spacing: -0.05em; line-height: 1.4;
-  margin-top: 0;
-}
-
-/* 작가 정보 (우측 컬럼) */
+/* 작가 정보 (좌측 컬럼) */
 #artist-info { padding-left: 12px; }
 #detail-artist-name {
   font-family: var(--ko);
@@ -245,7 +228,7 @@ body {
   line-height: 1.55; letter-spacing: -0.02em;
   color: #222;
   padding-left: 12px; margin-top: 28px;
-  grid-column: 2; grid-row: 2;
+  grid-column: 2; grid-row: 3;
 }
 
 /* 오른쪽 다크 이미지 영역 */
@@ -303,15 +286,11 @@ body {
         <a class="back-btn" href="#">←</a>
       </aside>
       <div id="detail-content">
-        <!-- Ko+En 제목을 하나로 묶어서 행 gap 제거 -->
-        <div id="title-group">
-          <div id="work-title-ko"></div>
-          <div id="work-title-en"></div>
-        </div>
         <div id="artist-info">
           <div id="detail-artist-name"></div>
           <div id="detail-handle"></div>
         </div>
+        <div></div><!-- 우측 상단 빈칸 -->
         <div id="detail-desc-ko"></div>
         <div id="detail-desc-en"></div>
       </div>
@@ -374,8 +353,8 @@ const artistDetail = {
 };
 
 const N = artists.length;
-const COL_FRACS = [0.13, 0.50, 0.87];
-const PAD_V = 22;
+const COL_FRACS = [0.075, 0.50, 0.925];
+const PAD_V = 5;
 
 /* ══════════════════════════════════════
    KOREAN GRAMMAR
@@ -419,8 +398,9 @@ function renderDetail(idx) {
   const ar  = artists[idx];
   const det = artistDetail[idx] || {};
 
-  document.getElementById('work-title-ko').textContent = `${ar.a}${prt(ar.a)} ${ar.b}${end(ar.b)}`;
-  document.getElementById('work-title-en').textContent = det.enTitle || `${ar.a} is a ${ar.b}`;
+  // 헤더를 작품 제목으로 변경
+  document.querySelector('#detail-top h1').textContent = det.enTitle || `${ar.a} is a ${ar.b}`;
+  document.querySelector('#detail-top h2').textContent = `${ar.a}${prt(ar.a)} ${ar.b}${end(ar.b)}`;
   document.getElementById('detail-artist-name').textContent = ar.name;
   document.getElementById('detail-handle').textContent = det.handle || '';
   document.getElementById('detail-desc-ko').textContent = det.descKo || '';
@@ -492,13 +472,28 @@ function assignPositions(col, order) {
 }
 
 /* 클릭 동작:
-   A값/B값/라인 클릭 → 선택(하이라이트)
-   작업자명 클릭 → 상세 페이지 이동 */
-function selectArtist(idx) {
-  activeIdx = (activeIdx === idx) ? null : idx;
-  updateStyles();
+   1회 클릭 → 선 강조
+   같은 항목 2회 클릭 → 상세 페이지 이동
+   (A값 / 작업자명 / B값 / 선 모두 동일 시퀀스)
+   — 디바운스: 한 번의 물리적 클릭이 item + SVG path 양쪽에서
+     중복 발화하는 것을 방지 */
+let _lastClickTs = 0, _lastClickIdx = -1;
+function handleItemClick(idx) {
+  const now = Date.now();
+  // 100ms 이내에 동일 idx로 이미 처리된 경우 → 중복 발화 무시
+  if (now - _lastClickTs < 100 && _lastClickIdx === idx) return;
+  _lastClickTs = now;
+  _lastClickIdx = idx;
+
+  if (activeIdx === idx) {
+    // 같은 항목 두 번째 클릭 → 페이지 이동
+    window.location.hash = idx + 1;
+  } else {
+    // 첫 클릭 또는 다른 항목 클릭 → 선 강조
+    activeIdx = idx;
+    updateStyles();
+  }
 }
-function goToArtist(idx) { window.location.hash = idx + 1; }
 
 function updateStyles() {
   for (let col = 0; col < 3; col++) {
@@ -553,7 +548,7 @@ function buildDOM() {
       p.setAttribute('stroke','transparent');
       p.setAttribute('stroke-width','14');
       p.style.cursor='pointer'; p.style.pointerEvents='stroke';
-      const ci=i; p.addEventListener('click',()=>selectArtist(ci));
+      const ci=i; p.addEventListener('click',()=>handleItemClick(ci));
       svgEl.appendChild(p); arr.push(p);
     });
   }
@@ -567,8 +562,8 @@ function buildDOM() {
   const justifys   = ['flex-end','center','flex-start'];
   const textAligns = ['right','center','left'];
   const widths     = [
-    Math.max(60, colX[0]-6)+'px', '110px',
-    Math.max(60, stageW-colX[2]-6)+'px',
+    Math.max(60, colX[0])+'px', '110px',
+    Math.max(60, stageW-colX[2])+'px',
   ];
 
   for (let col=0; col<3; col++) {
@@ -587,8 +582,7 @@ function buildDOM() {
       el.appendChild(label);
 
       const ci=i;
-      if (col===1) { el.addEventListener('click', ()=>goToArtist(ci)); }   // 작업자명 → 이동
-      else         { el.addEventListener('click', ()=>selectArtist(ci)); } // A/B → 선택
+      el.addEventListener('click', ()=>handleItemClick(ci)); // 모두 동일한 시퀀스
 
       stage.appendChild(el); itemEls[col][i]=el;
     }
