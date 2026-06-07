@@ -133,6 +133,8 @@ body {
   position: relative;
   overflow: visible;
 }
+/* hidden 상태 강제 — ID 선택자보다 높은 우선순위 */
+#view-detail.hidden { display: none; }
 
 /* 타이틀: 화면 상단 고정, 이미지 위에 오버레이 */
 #detail-top {
