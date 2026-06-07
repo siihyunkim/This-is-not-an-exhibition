@@ -693,16 +693,23 @@ function rafLoop() {
    INIT
 ══════════════════════════════════════ */
 function placeInitial() {
-  for (let col=0; col<3; col++) {
-    const order=shuffle(Array.from({length:N},(_,i)=>i));
-    assignPositions(col,order);
+  // A열 랜덤 셔플
+  const orderA = shuffle(Array.from({length:N}, (_, i) => i));
+  // 작업자열 = A열 역순 → A→작업자 선이 항상 교차, 가로선 불가
+  const orderM = [...orderA].reverse();
+  // B열 = A열 N/3 회전 → 작업자→B 선도 교차 보장
+  const rot = Math.ceil(N / 3);
+  const orderB = [...orderA.slice(rot), ...orderA.slice(0, rot)];
+
+  [orderA, orderM, orderB].forEach((order, col) => {
+    assignPositions(col, order);
     for (let i=0; i<N; i++) {
       if (itemEls[col][i]) {
         itemEls[col][i].style.transition='none';
         itemEls[col][i].style.top=pos[col][i]+'px';
       }
     }
-  }
+  });
 }
 function init() {
   computeLayout(); buildDOM(); placeInitial();
