@@ -76,7 +76,7 @@ body {
 #title-section h1 {
   font-family: var(--en);
   font-size: clamp(20px, 3vw, 50px);
-  font-weight: 300;
+  font-weight: 400; /* NHaasGroteskDSPro-55Rg */
   letter-spacing: -0.05em;
 }
 #title-section h2 {
@@ -123,26 +123,32 @@ body {
 .item.artist-col:hover .item-label { text-decoration: underline; }
 
 /* ════════════════════════════════
-   DETAIL PAGE
+   DETAIL PAGE — split-scroll layout
+   左: sticky 100vh / 右: page scroll
 ════════════════════════════════ */
 #view-detail {
+  display: block;          /* .view의 flex 무효화 */
   height: auto;
   min-height: 100vh;
-  position: relative; /* 스크롤 가능하도록 document flow 복귀 */
+  position: relative;
   overflow: visible;
 }
 
-/* 상단 타이틀 (랜딩과 동일) */
+/* 타이틀: 화면 상단 고정, 이미지 위에 오버레이 */
 #detail-top {
-  flex-shrink: 0;
+  position: fixed; top: 0; left: 0; right: 0;
+  z-index: 200;
   text-align: center;
   padding: 20px 32px 14px;
   line-height: 1.1;
+  pointer-events: none;
+  background: transparent;
 }
 #detail-top h1 {
   font-family: var(--en);
   font-size: clamp(20px, 3vw, 50px);
-  font-weight: 300; letter-spacing: -0.05em;
+  font-weight: 400; /* NHaasGroteskDSPro-55Rg */
+  letter-spacing: -0.05em;
 }
 #detail-top h2 {
   font-family: var(--ko);
@@ -150,25 +156,29 @@ body {
   font-weight: 300; letter-spacing: -0.09em; margin-top: 1px;
 }
 
-/* 바디: 왼쪽 흰색 | 오른쪽 다크 */
-#detail-body { flex: 1; display: flex; overflow: hidden; }
+/* 바디: 좌우 나란히, 페이지 플로우 */
+#detail-body { display: flex; align-items: flex-start; overflow: visible; }
 
-/* 왼쪽 흰색 영역 */
+/* ── 왼쪽 패널: sticky 100vh, 내부 스크롤 ── */
 #detail-left {
-  flex: 0 0 46%;
-  display: flex;
+  position: sticky; top: 0;
+  flex: 0 0 46%; width: 46%;
+  height: 100vh;
+  overflow-y: auto; scrollbar-width: none;
   border-right: 0.5px solid #e0e0e0;
-  overflow: hidden;
+  display: flex; flex-direction: column;
 }
+#detail-left::-webkit-scrollbar { display: none; }
+
+/* 사이드바 + 콘텐츠 가로 배치 래퍼 */
+.detail-left-inner { flex: 1; display: flex; min-height: 0; }
 
 /* 번호 사이드바 */
 #detail-sidebar {
   width: 38px; flex-shrink: 0;
-  padding: 10px 0 16px 14px;
-  overflow-y: auto; scrollbar-width: none;
+  padding: 130px 0 16px 14px; /* 130px: fixed 타이틀 높이 확보 */
   display: flex; flex-direction: column;
 }
-#detail-sidebar::-webkit-scrollbar { display: none; }
 
 .back-btn {
   display: block; font-family: var(--en);
@@ -189,20 +199,19 @@ body {
 .sidebar-num:hover { color: #000; }
 .sidebar-num.active { color: #000; font-weight: 700; }
 
-/* 콘텐츠 그리드 (2컬럼) */
+/* 콘텐츠 그리드:
+   좌열 = 이름+아이디 / 우열 = 한글설명↑ 영어설명↓ */
 #detail-content {
   flex: 1;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 0;
-  padding: 22px 24px 24px 12px;
-  overflow-y: auto; scrollbar-width: none;
+  padding: 130px 24px 24px 0; /* 상단 130px: 타이틀 확보 */
   align-content: start;
 }
-#detail-content::-webkit-scrollbar { display: none; }
 
-/* 작가 정보 (좌측 컬럼) */
-#artist-info { padding-left: 12px; }
+/* 작가 정보 — 좌열 */
+#artist-info { padding-left: 12px; grid-column: 1; grid-row: 1; }
 #detail-artist-name {
   font-family: var(--ko);
   font-size: 15px; font-weight: 700;
@@ -214,33 +223,36 @@ body {
   letter-spacing: -0.05em; margin-top: 2px;
 }
 
-/* 설명 텍스트 */
+/* 한글 설명 — 우열 상단 */
 #detail-desc-ko {
   font-family: var(--ko);
   font-size: 15px; font-weight: 400;
   line-height: 1.55; letter-spacing: -0.09em;
-  padding-right: 20px; margin-top: 28px;
-  grid-column: 1;
+  padding-left: 12px; padding-right: 20px;
+  grid-column: 2; grid-row: 1;
 }
+
+/* 영어 설명 — 우열 하단 */
 #detail-desc-en {
   font-family: var(--en);
   font-size: 15px; font-weight: 400;
   line-height: 1.55; letter-spacing: -0.02em;
   color: #222;
-  padding-left: 12px; margin-top: 28px;
-  grid-column: 2; grid-row: 3;
+  padding-left: 12px; margin-top: 20px;
+  grid-column: 2; grid-row: 2;
 }
 
-/* 오른쪽 다크 이미지 영역 */
+/* ── 오른쪽 패널: 페이지 스크롤, 이미지 풀 높이 ── */
 #detail-right {
   flex: 1;
   background: #0d0d0d;
-  overflow: hidden;
+  overflow: visible;
   display: flex; flex-direction: column;
-  padding: 10px; gap: 6px;
+  padding: 0; gap: 0;
 }
 
-.img-row { display: flex; gap: 6px; flex: 1; min-height: 0; }
+/* 이미지 행: 각각 100vh */
+.img-row { display: flex; flex-shrink: 0; min-height: 100vh; gap: 0; }
 .img-box {
   flex: 1; overflow: hidden;
   display: flex; align-items: center; justify-content: center;
@@ -280,31 +292,36 @@ body {
   </div>
   <div id="detail-body">
 
-    <!-- 왼쪽 흰색 -->
+    <!-- 왼쪽: sticky 패널 (사이드바 + 콘텐츠 + 푸터) -->
     <div id="detail-left">
-      <aside id="detail-sidebar">
-        <a class="back-btn" href="#">←</a>
-      </aside>
-      <div id="detail-content">
-        <div id="artist-info">
-          <div id="detail-artist-name"></div>
-          <div id="detail-handle"></div>
+      <div class="detail-left-inner">
+        <aside id="detail-sidebar">
+          <a class="back-btn" href="#">←</a>
+        </aside>
+        <div id="detail-content">
+          <!-- 좌열: 이름+아이디 -->
+          <div id="artist-info">
+            <div id="detail-artist-name"></div>
+            <div id="detail-handle"></div>
+          </div>
+          <!-- 우열 상단: 한글 설명 -->
+          <div id="detail-desc-ko"></div>
+          <!-- 우열 하단: 영어 설명 (grid-row:2) -->
+          <div id="detail-desc-en"></div>
         </div>
-        <div></div><!-- 우측 상단 빈칸 -->
-        <div id="detail-desc-ko"></div>
-        <div id="detail-desc-en"></div>
       </div>
+      <!-- 푸터는 왼쪽 패널 내부 스크롤 최하단 -->
+      <footer class="footer-bar">
+        <div class="footer-col">홍익대학교 시각디자인과<br>사회문화적디자인스튜디오(3)<br>지도교수 석재원</div>
+        <div class="footer-col">개인별 워크숍 결과물 전시<br>2025년 4월 20일 (월) — 4월 24일 (금)<br>홍익대학교 홍문관 7층 R777</div>
+        <div class="footer-spacer"></div>
+        <div class="footer-col right">개인별 워크숍 결과물 전시<br>2025년 4월 20일 (월) — 4월 24일 (금)<br>홍익대학교 홍문관 7층 R777</div>
+      </footer>
     </div>
 
-    <!-- 오른쪽 다크 -->
-    <div id="detail-right" id="detail-images"></div>
+    <!-- 오른쪽: 이미지, 페이지 스크롤 -->
+    <div id="detail-right"></div>
   </div>
-  <footer class="footer-bar">
-    <div class="footer-col">홍익대학교 시각디자인과<br>사회문화적디자인스튜디오(3)<br>지도교수 석재원</div>
-    <div class="footer-col">개인별 워크숍 결과물 전시<br>2025년 4월 20일 (월) — 4월 24일 (금)<br>홍익대학교 홍문관 7층 R777</div>
-    <div class="footer-spacer"></div>
-    <div class="footer-col right">개인별 워크숍 결과물 전시<br>2025년 4월 20일 (월) — 4월 24일 (금)<br>홍익대학교 홍문관 7층 R777</div>
-  </footer>
 </div>
 
 <script>
@@ -349,8 +366,8 @@ const artistDetail = {
     descKo: `길 위의 단차와 요철, 마찰과 흔들림은 도로가 지닌 정보가 되며, 보드는 길 위를 주행하며 이를 몸의 움직임으로 변환한다. 『Skateboard is a Scanner』는 19개의 바닥 이미지와 스캔된 기록을 통해, 보드를 타고 길을 읽는 감각을 전달한다.`,
     descEn: `The differences in level, uneven textures, friction, and vibrations of the road become information held by its surface, and as the board moves across it, it translates them into bodily movement. 『Skateboard is a Scanner』 conveys the sensation of reading the road through a board, through 19 images of ground surfaces and scanned records.`,
     images: [
-      'images/김주현_스케이트보드_01.jpg',
-      'images/김주현_Thumbnail.jpg'
+      'images/김주현_Thumbnail.jpg',
+      'images/김주현_스케이트보드_01.jpg'
     ]
   },
 };
