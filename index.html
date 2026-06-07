@@ -358,9 +358,9 @@ const artists = [
   { a:"페퍼민트 캔디",name:"XU NING", b:"국제 통용 화폐" },
 ];
 
-/* 작가별 상세 콘텐츠 — 아래 형식으로 추가 */
+/* 작가별 상세 콘텐츠 */
 const artistDetail = {
-  16: { // 김주현
+  16: {
     enTitle: "Skateboard is a Scanner.",
     handle: "@3_jhn_3",
     descKo: `길 위의 단차와 요철, 마찰과 흔들림은 도로가 지닌 정보가 되며, 보드는 길 위를 주행하며 이를 몸의 움직임으로 변환한다. 『Skateboard is a Scanner』는 19개의 바닥 이미지와 스캔된 기록을 통해, 보드를 타고 길을 읽는 감각을 전달한다.`,
@@ -400,13 +400,13 @@ function render() {
   if (r.page === 'detail') {
     document.getElementById('view-landing').classList.add('hidden');
     document.getElementById('view-detail').classList.remove('hidden');
-    document.body.style.overflowY = 'auto'; // 상세 페이지: 스크롤 허용
+    document.body.style.overflowY = 'auto';
     window.scrollTo(0, 0);
     renderDetail(r.idx);
   } else {
     document.getElementById('view-detail').classList.add('hidden');
     document.getElementById('view-landing').classList.remove('hidden');
-    document.body.style.overflowY = 'hidden'; // 랜딩: 스크롤 고정
+    document.body.style.overflowY = 'hidden';
   }
 }
 window.addEventListener('hashchange', render);
@@ -418,7 +418,6 @@ function renderDetail(idx) {
   const ar  = artists[idx];
   const det = artistDetail[idx] || {};
 
-  // 헤더를 작품 제목으로 변경
   document.querySelector('#detail-top h1').textContent = det.enTitle || `${ar.a} is a ${ar.b}`;
   document.querySelector('#detail-top h2').textContent = `${ar.a}${prt(ar.a)} ${ar.b}${end(ar.b)}`;
   document.getElementById('detail-artist-name').textContent = ar.name;
@@ -426,7 +425,6 @@ function renderDetail(idx) {
   document.getElementById('detail-desc-ko').textContent = det.descKo || '';
   document.getElementById('detail-desc-en').textContent = det.descEn || '';
 
-  /* 사이드바 */
   const sb = document.getElementById('detail-sidebar');
   sb.innerHTML = '<a class="back-btn" href="#">←</a>';
   artists.forEach((_, i) => {
@@ -437,18 +435,15 @@ function renderDetail(idx) {
   });
   sb.querySelector('.active')?.scrollIntoView({ block:'center' });
 
-  /* 이미지 */
   const imgs = det.images || [];
   const dr = document.getElementById('detail-right');
   dr.innerHTML = '';
   if (imgs.length === 0) {
-    // 플레이스홀더: 상단 큰 칸 + 하단 2칸
     dr.appendChild(mkRow([''], '1.6'));
     dr.appendChild(mkRow(['', ''], '1'));
   } else if (imgs.length === 1) {
     dr.appendChild(mkRow([imgs[0]], '1'));
   } else {
-    // 첫 이미지 크게(1.6), 나머지 한 줄에
     dr.appendChild(mkRow([imgs[0]], '1.6'));
     dr.appendChild(mkRow(imgs.slice(1), '1'));
   }
@@ -496,25 +491,16 @@ function assignPositions(col, order) {
   order.forEach((ai, rank) => { pos[col][ai] = PAD_V + rank*step; });
 }
 
-/* 클릭 동작:
-   1회 클릭 → 선 강조
-   같은 항목 2회 클릭 → 상세 페이지 이동
-   (A값 / 작업자명 / B값 / 선 모두 동일 시퀀스)
-   — 디바운스: 한 번의 물리적 클릭이 item + SVG path 양쪽에서
-     중복 발화하는 것을 방지 */
 let _lastClickTs = 0, _lastClickIdx = -1;
 function handleItemClick(idx) {
   const now = Date.now();
-  // 100ms 이내에 동일 idx로 이미 처리된 경우 → 중복 발화 무시
   if (now - _lastClickTs < 100 && _lastClickIdx === idx) return;
   _lastClickTs = now;
   _lastClickIdx = idx;
 
   if (activeIdx === idx) {
-    // 같은 항목 두 번째 클릭 → 페이지 이동
     window.location.hash = idx + 1;
   } else {
-    // 첫 클릭 또는 다른 항목 클릭 → 선 강조
     activeIdx = idx;
     updateStyles();
   }
@@ -542,7 +528,6 @@ function buildDOM() {
   linePathsA=[]; linePathsB=[]; clickPathsA=[]; clickPathsB=[];
   for (let c=0; c<3; c++) itemEls[c]=[];
 
-  /* 축선 */
   for (let col=0; col<3; col++) {
     const ax=document.createElement('div');
     ax.className='col-axis'; ax.style.left=colX[col]+'px';
@@ -554,7 +539,6 @@ function buildDOM() {
     });
   }
 
-  /* SVG 라인 (기본 회색) */
   for (let i=0; i<N; i++) {
     [linePathsA,linePathsB].forEach(arr => {
       const p=document.createElementNS('http://www.w3.org/2000/svg','path');
@@ -565,7 +549,6 @@ function buildDOM() {
     });
   }
 
-  /* 클릭 오버레이 → 선택 */
   for (let i=0; i<N; i++) {
     [clickPathsA,clickPathsB].forEach(arr => {
       const p=document.createElementNS('http://www.w3.org/2000/svg','path');
@@ -578,16 +561,15 @@ function buildDOM() {
     });
   }
 
-  /* 아이템 요소 */
   const PAD_SIDE = 14;
   const transforms = [
     'translateY(-50%)',
-    'translateX(-50%) translateY(-50%)',
+    'translateX(-50%)  translateY(-50%)',
     'translateY(-50%)',
   ];
   const justifys   = ['flex-start','center','flex-end'];
   const textAligns = ['left','center','right'];
-  const widths = [
+  const widths     = [
     Math.max(60, colX[0] - PAD_SIDE)+'px', '110px',
     Math.max(60, stageW - colX[2] - PAD_SIDE)+'px',
   ];
@@ -601,14 +583,13 @@ function buildDOM() {
       el.style.width=widths[col]; el.style.justifyContent=justifys[col];
 
       const label=document.createElement('div');
-      label.className='item-label ' + (col===1 ? 'ko' : col===0 ? 'ko' : 'ko');
-      /* A=Korean, Artist=Korean, B=Korean — 모두 한글 */
+      label.className='item-label ko';
       label.style.textAlign=textAligns[col];
       label.textContent = col===0 ? artists[i].a : col===1 ? artists[i].name : artists[i].b;
       el.appendChild(label);
 
       const ci=i;
-      el.addEventListener('click', ()=>handleItemClick(ci)); // 모두 동일한 시퀀스
+      el.addEventListener('click', ()=>handleItemClick(ci));
 
       stage.appendChild(el); itemEls[col][i]=el;
     }
