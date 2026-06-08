@@ -581,18 +581,21 @@ function buildDOM() {
     'translateX(-50%)  translateY(-50%)',
     'translateY(-50%)',
   ];
-  const justifys   = ['flex-start','center','flex-end'];
-  const textAligns = ['left','center','right'];
+  const GAP = 3;  /* 축 라인과 텍스트 사이 여백 */
+  const justifys   = ['flex-end','center','flex-start'];
+  const textAligns = ['right','center','left'];
   const widths     = [
-    Math.max(60, colX[0] - PAD_SIDE)+'px', '110px',
-    Math.max(60, stageW - colX[2] - 4)+'px',  /* B col: 4px 여백만 */
+    Math.max(60, colX[0] - PAD_SIDE - GAP)+'px', '110px',
+    Math.max(60, stageW - colX[2] - GAP - 4)+'px',
   ];
 
   for (let col=0; col<3; col++) {
     for (let i=0; i<N; i++) {
       const el=document.createElement('div');
       el.className='item' + (col===1 ? ' artist-col' : '');
-      el.style.left=(col===0 ? PAD_SIDE : colX[col])+'px'; el.style.top='0px';
+      /* A col: PAD_SIDE부터, 폭은 axis까지-GAP / B col: axis+GAP부터 */
+      el.style.left=(col===0 ? PAD_SIDE : col===2 ? colX[col]+GAP : colX[col])+'px';
+      el.style.top='0px';
       el.style.transform=transforms[col];
       el.style.width=widths[col]; el.style.justifyContent=justifys[col];
 
