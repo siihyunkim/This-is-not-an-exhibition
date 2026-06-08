@@ -488,7 +488,7 @@ function computeLayout() {
   colX = COL_FRACS.map(f => f * stageW);
 
   /* 텍스트 실제 폭으로 A/B 축 동적 계산 */
-  const PAD = 5, GAP = 3, FS = 12, LS = -0.09 * FS;
+  const PAD = 12, GAP = 3, FS = 12, LS = -0.09 * FS;
   const cvs = document.createElement('canvas');
   const ctx = cvs.getContext('2d');
   ctx.font = '500 ' + FS + 'px "Pretendard Variable", Pretendard, sans-serif';
@@ -587,7 +587,7 @@ function buildDOM() {
     });
   }
 
-  const PAD_SIDE = 5;
+  const PAD_SIDE = 12;
   const transforms = [
     'translateY(-50%)',
     'translateX(-50%)  translateY(-50%)',
