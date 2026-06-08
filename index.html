@@ -189,23 +189,30 @@ body {
 /* 번호 사이드바 */
 #detail-sidebar {
   width: 30px; flex-shrink: 0;
-  padding: 130px 0 16px 9px;
+  padding: 10px 0 20px 9px;
   display: flex; flex-direction: column;
   border-right: 1px solid #e0e0e0;
+}
+
+/* 번호 균등 배분 래퍼 */
+#sidebar-nums {
+  flex: 1;
+  display: flex; flex-direction: column;
+  justify-content: space-between;
+  padding-top: 120px; /* 고정 타이틀 높이 확보 */
 }
 
 .back-btn {
   display: block; font-family: var(--en);
   font-size: 11px; color: #bbb;
-  margin-bottom: 12px; cursor: pointer;
-  text-decoration: none; transition: color 0.2s;
-  line-height: 1;
+  cursor: pointer; text-decoration: none;
+  transition: color 0.2s; line-height: 1;
 }
 .back-btn:hover { color: #000; }
 
 .sidebar-num {
   display: block; font-family: var(--en);
-  font-size: 12px; line-height: 2.3;
+  font-size: 12px; line-height: 1;
   color: #ccc; text-decoration: none;
   cursor: pointer; transition: color 0.15s;
   letter-spacing: -0.05em;
@@ -475,13 +482,15 @@ function renderDetail(idx) {
 
   const sb = document.getElementById('detail-sidebar');
   sb.innerHTML = '<a class="back-btn" href="#">←</a>';
+  const numsWrap = document.createElement('div');
+  numsWrap.id = 'sidebar-nums';
   artists.forEach((_, i) => {
     const a = document.createElement('a');
     a.className = 'sidebar-num' + (i === idx ? ' active' : '');
     a.textContent = i + 1; a.href = '#' + (i + 1);
-    sb.appendChild(a);
+    numsWrap.appendChild(a);
   });
-  sb.querySelector('.active')?.scrollIntoView({ block:'center' });
+  sb.appendChild(numsWrap);
 
   const imgs = det.images || [];
   const dr = document.getElementById('detail-right');
