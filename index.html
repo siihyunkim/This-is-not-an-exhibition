@@ -116,12 +116,12 @@ body {
 /* 랜딩 뷰 내부 스크롤 (푸터 스크롤 노출) */
 #view-landing { overflow-y: auto; }
 
-/* 중앙 세로선 — 타이틀부터 푸터까지 페이지 전체 관통 */
+/* 중앙 세로선 — SVG 화살표 */
 #center-line {
-  position: fixed; left: 50%; top: 0; bottom: 0;
-  width: 1px; background: #c8c8c8;
+  position: fixed; left: calc(50% - 3px); top: 0;
+  width: 6px; height: 100vh;
   pointer-events: none; z-index: 50;
-  transform: translateX(-50%);
+  display: none;
 }
 
 .item { position: absolute; cursor: pointer; display: flex; align-items: center; }
@@ -176,6 +176,7 @@ body {
 
 /* ── 왼쪽 패널: sticky 100vh, 내부 스크롤 ── */
 #detail-left {
+  position: relative;
   flex: 0 0 50%; width: 50%;
   height: 100vh;
   overflow-y: auto; scrollbar-width: none;
@@ -191,7 +192,6 @@ body {
   width: 30px; flex-shrink: 0;
   padding: 10px 0 20px 9px;
   display: flex; flex-direction: column;
-  border-right: 1px solid #e0e0e0;
 }
 
 /* 번호 균등 배분 래퍼 */
@@ -199,7 +199,7 @@ body {
   flex: 1;
   display: flex; flex-direction: column;
   justify-content: space-between;
-  padding-top: 120px; /* 고정 타이틀 높이 확보 */
+  padding-top: 90px;
 }
 
 .back-btn {
@@ -227,10 +227,10 @@ body {
 #detail-content {
   flex: 1;
   display: grid;
-  grid-template-columns: 1fr 2fr;
+  grid-template-columns: 1fr 3fr;
   grid-template-rows: auto auto;
   gap: 0;
-  padding: 130px 24px 24px 0;
+  padding: 100px 24px 24px 0;
   align-content: start;
 }
 
@@ -305,7 +305,9 @@ body {
 <!-- ══════════════════════════════
      LANDING
 ══════════════════════════════ -->
-<div id="center-line"></div>
+<svg id="center-line" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 6 850" preserveAspectRatio="none">
+  <path id="center-line-path" d="M2.88684 0L8.91884e-05 5L5.77359 5L2.88684 0ZM2.8868 850L5.77356 845L5.24708e-05 845L2.8868 850ZM2.88684 4.5L2.38684 4.5L2.3868 845.5L2.8868 845.5L3.3868 845.5L3.38684 4.5L2.88684 4.5Z" fill="#c8c8c8"/>
+</svg>
 <div id="view-landing" class="view">
   <div id="title-section"></div>
   <div id="stage"><svg id="svg-lines"></svg></div>
@@ -437,20 +439,21 @@ function render() {
   const h1 = document.querySelector('#site-title h1');
   const h2 = document.querySelector('#site-title h2');
   const inv = document.getElementById('site-title-inv');
+  const clPath = document.getElementById('center-line-path');
   if (r.page === 'detail') {
     document.getElementById('view-landing').classList.add('hidden');
     document.getElementById('view-detail').classList.remove('hidden');
     document.body.style.overflowY = '';
     cl.style.display = 'block';
-    cl.style.background = '#000';
-    inv.style.display = 'none'; /* 밝기 감지 후 setupDetailScroll이 결정 */
+    clPath.setAttribute('fill', '#000');
+    inv.style.display = 'none';
     renderDetail(r.idx);
     document.getElementById('detail-right').scrollTop = 0;
   } else {
     document.getElementById('view-detail').classList.add('hidden');
     document.getElementById('view-landing').classList.remove('hidden');
     cl.style.display = 'block';
-    cl.style.background = '#c8c8c8';
+    clPath.setAttribute('fill', '#c8c8c8');
     inv.style.display = 'none';
     h1.textContent = 'This is not an exhibition';
     h2.textContent = '이것은 전시가 아니다';
@@ -505,6 +508,21 @@ function renderDetail(idx) {
     dr.appendChild(mkRow(imgs.slice(1), '1'));
   }
   setupDetailScroll();
+
+  /* 사이드바 화살표 선 (랜딩과 동일한 SVG) */
+  const prevArrow = document.getElementById('sidebar-arrow-svg');
+  if (prevArrow) prevArrow.remove();
+  const svgNS = 'http://www.w3.org/2000/svg';
+  const saSvg = document.createElementNS(svgNS, 'svg');
+  saSvg.id = 'sidebar-arrow-svg';
+  saSvg.setAttribute('viewBox', '0 0 6 850');
+  saSvg.setAttribute('preserveAspectRatio', 'none');
+  saSvg.style.cssText = 'position:absolute; left:27px; top:0; width:6px; height:100%; pointer-events:none; z-index:10;';
+  const saPath = document.createElementNS(svgNS, 'path');
+  saPath.setAttribute('d', 'M2.88684 0L8.91884e-05 5L5.77359 5L2.88684 0ZM2.8868 850L5.77356 845L5.24708e-05 845L2.8868 850ZM2.88684 4.5L2.38684 4.5L2.3868 845.5L2.8868 845.5L3.3868 845.5L3.38684 4.5L2.88684 4.5Z');
+  saPath.setAttribute('fill', 'black');
+  saSvg.appendChild(saPath);
+  document.getElementById('detail-left').appendChild(saSvg);
 }
 
 function mkRow(srcs, flex) {
