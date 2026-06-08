@@ -189,8 +189,9 @@ body {
 
 /* 번호 사이드바 */
 #detail-sidebar {
+  position: relative;
   width: 30px; flex-shrink: 0;
-  padding: 10px 0 20px 9px;
+  padding: 0 0 20px 9px;
   display: flex; flex-direction: column;
 }
 
@@ -199,10 +200,11 @@ body {
   flex: 1;
   display: flex; flex-direction: column;
   justify-content: space-between;
-  padding-top: 90px;
+  padding-top: 100px; /* detail-content와 동일 */
 }
 
 .back-btn {
+  position: absolute; top: 10px; left: 9px;
   display: block; font-family: var(--en);
   font-size: 11px; color: #bbb;
   cursor: pointer; text-decoration: none;
@@ -230,7 +232,7 @@ body {
   grid-template-columns: 1fr 3fr;
   grid-template-rows: auto auto;
   gap: 0;
-  padding: 100px 24px 24px 0;
+  padding: 100px 24px 24px 32px;
   align-content: start;
 }
 
@@ -515,12 +517,12 @@ function renderDetail(idx) {
   const svgNS = 'http://www.w3.org/2000/svg';
   const saSvg = document.createElementNS(svgNS, 'svg');
   saSvg.id = 'sidebar-arrow-svg';
-  saSvg.setAttribute('viewBox', '0 0 6 850');
+  saSvg.setAttribute('viewBox', '0 0 6 1197');
   saSvg.setAttribute('preserveAspectRatio', 'none');
   saSvg.style.cssText = 'position:absolute; left:27px; top:0; width:6px; height:100%; pointer-events:none; z-index:10;';
   const saPath = document.createElementNS(svgNS, 'path');
-  saPath.setAttribute('d', 'M2.88684 0L8.91884e-05 5L5.77359 5L2.88684 0ZM2.8868 850L5.77356 845L5.24708e-05 845L2.8868 850ZM2.88684 4.5L2.38684 4.5L2.3868 845.5L2.8868 845.5L3.3868 845.5L3.38684 4.5L2.88684 4.5Z');
-  saPath.setAttribute('fill', 'black');
+  saPath.setAttribute('d', 'M2.88672 0L-3.24448e-05 5L5.77347 5L2.88672 0ZM2.8868 1878L5.77355 1873L4.92081e-05 1873L2.8868 1878ZM2.88672 4.5L2.38672 4.5L2.3868 1873.5L2.8868 1873.5L3.3868 1873.5L3.38672 4.5L2.88672 4.5Z');
+  saPath.setAttribute('fill', '#D9D9D9');
   saSvg.appendChild(saPath);
   document.getElementById('detail-left').appendChild(saSvg);
 }
