@@ -96,23 +96,12 @@ body {
   height: 130px;
 }
 
-#stage { flex: 1; position: relative; overflow: hidden; user-select: none; }
+/* 스테이지: 정확히 뷰포트 높이 - 스페이서 */
+#stage { flex: none; height: calc(100vh - 130px); position: relative; overflow: hidden; user-select: none; }
 #svg-lines { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 
-.col-axis {
-  position: absolute; top: 20px; bottom: 20px; width: 0;
-  transform: translateX(-50%);
-  border-left: 1px dashed #c8c8c8;
-  pointer-events: none;
-}
-.col-arrow {
-  position: absolute; font-family: var(--en);
-  color: #bbb; font-size: 9px;
-  transform: translateX(-50%);
-  pointer-events: none; line-height: 1;
-}
-.col-arrow.up { top: 5px; }
-.col-arrow.dn { bottom: 5px; }
+/* 랜딩 뷰 내부 스크롤 (푸터 스크롤 노출) */
+#view-landing { overflow-y: auto; }
 
 .item { position: absolute; cursor: pointer; display: flex; align-items: center; }
 .item-label {
@@ -387,7 +376,7 @@ const artistDetail = {
 };
 
 const N = artists.length;
-const COL_FRACS = [0.15, 0.50, 0.85];
+const COL_FRACS = [0.09, 0.50, 0.91]; /* 동적 계산 fallback */
 const PAD_V = 5;
 
 /* ══════════════════════════════════════
@@ -420,7 +409,7 @@ function render() {
   } else {
     document.getElementById('view-detail').classList.add('hidden');
     document.getElementById('view-landing').classList.remove('hidden');
-    document.body.style.overflowY = 'hidden';
+    /* body는 hidden 유지, 랜딩 뷰 내부(overflow-y:auto)가 스크롤됨 */
   }
 }
 window.addEventListener('hashchange', render);
@@ -497,6 +486,24 @@ function shuffle(arr) {
 function computeLayout() {
   stageW = stage.offsetWidth; stageH = stage.offsetHeight;
   colX = COL_FRACS.map(f => f * stageW);
+
+  /* 텍스트 실제 폭으로 A/B 축 동적 계산 */
+  const PAD = 5, GAP = 3, FS = 12, LS = -0.09 * FS;
+  const cvs = document.createElement('canvas');
+  const ctx = cvs.getContext('2d');
+  ctx.font = '500 ' + FS + 'px "Pretendard Variable", Pretendard, sans-serif';
+  let maxA = 0, maxB = 0;
+  artists.forEach(ar => {
+    const wA = ctx.measureText(ar.a).width + ar.a.length * LS;
+    const wB = ctx.measureText(ar.b).width + ar.b.length * LS;
+    if (wA > maxA) maxA = wA;
+    if (wB > maxB) maxB = wB;
+  });
+  /* 안전 마진 1.15× (실제 렌더 vs 캔버스 차이 보정) */
+  maxA *= 1.15; maxB *= 1.15;
+  colX[0] = PAD + maxA + GAP;
+  colX[2] = stageW - PAD - maxB - GAP;
+
   svgEl.setAttribute('viewBox',`0 0 ${stageW} ${stageH}`);
   svgEl.setAttribute('width', stageW); svgEl.setAttribute('height', stageH);
 }
@@ -536,22 +543,44 @@ function updateStyles() {
 /* ══════════════════════════════════════
    BUILD DOM
 ══════════════════════════════════════ */
+function addAxisArrow(x) {
+  /* A/B 축: 위아래 쐐기 화살표 + 세로 실선 */
+  const ns = 'http://www.w3.org/2000/svg';
+  const margin = 18, ah = 9, aw = 5; /* ah=화살촉 높이, aw=너비 */
+  const top = margin, bot = stageH - margin;
+  const color = '#111', sw = '1';
+
+  const topArr = document.createElementNS(ns,'polyline');
+  topArr.setAttribute('class','svg-axis');
+  topArr.setAttribute('points',`${x-aw},${top+ah} ${x},${top} ${x+aw},${top+ah}`);
+  topArr.setAttribute('fill','none'); topArr.setAttribute('stroke',color);
+  topArr.setAttribute('stroke-width',sw); topArr.setAttribute('stroke-linejoin','miter');
+  svgEl.appendChild(topArr);
+
+  const line = document.createElementNS(ns,'line');
+  line.setAttribute('class','svg-axis');
+  line.setAttribute('x1',x); line.setAttribute('y1',top+ah);
+  line.setAttribute('x2',x); line.setAttribute('y2',bot-ah);
+  line.setAttribute('stroke',color); line.setAttribute('stroke-width','0.75');
+  svgEl.appendChild(line);
+
+  const botArr = document.createElementNS(ns,'polyline');
+  botArr.setAttribute('class','svg-axis');
+  botArr.setAttribute('points',`${x-aw},${bot-ah} ${x},${bot} ${x+aw},${bot-ah}`);
+  botArr.setAttribute('fill','none'); botArr.setAttribute('stroke',color);
+  botArr.setAttribute('stroke-width',sw); botArr.setAttribute('stroke-linejoin','miter');
+  svgEl.appendChild(botArr);
+}
+
 function buildDOM() {
-  stage.querySelectorAll('.item,.col-axis,.col-arrow').forEach(e => e.remove());
+  stage.querySelectorAll('.item').forEach(e => e.remove());
   svgEl.innerHTML = '';
   linePathsA=[]; linePathsB=[]; clickPathsA=[]; clickPathsB=[];
   for (let c=0; c<3; c++) itemEls[c]=[];
 
-  for (let col=0; col<3; col++) {
-    const ax=document.createElement('div');
-    ax.className='col-axis'; ax.style.left=colX[col]+'px';
-    stage.appendChild(ax);
-    ['up','dn'].forEach(d => {
-      const el=document.createElement('div');
-      el.className=`col-arrow ${d}`; el.style.left=colX[col]+'px';
-      el.textContent=d==='up'?'↑':'↓'; stage.appendChild(el);
-    });
-  }
+  /* SVG 화살표 축선 (A col, B col만) */
+  addAxisArrow(colX[0]);
+  addAxisArrow(colX[2]);
 
   for (let i=0; i<N; i++) {
     [linePathsA,linePathsB].forEach(arr => {
@@ -575,7 +604,7 @@ function buildDOM() {
     });
   }
 
-  const PAD_SIDE = 14;
+  const PAD_SIDE = 5;
   const transforms = [
     'translateY(-50%)',
     'translateX(-50%)  translateY(-50%)',
