@@ -532,7 +532,7 @@ function getTitleInvByBrightness(imgEl, cb) {
       for (let i = 0; i < d.length; i += 4)
         lum += 0.299 * d[i] + 0.587 * d[i+1] + 0.114 * d[i+2];
       lum /= (d.length / 4);
-      cb(lum < 140); /* 140/255 기준: 어두우면 흰 타이틀 */
+      cb(lum < 85); /* 85/255 기준: 확실히 어두울 때만 흰 타이틀 */
     } catch(e) { cb(false); }
   };
   if (imgEl.complete && imgEl.naturalWidth > 0) check();
