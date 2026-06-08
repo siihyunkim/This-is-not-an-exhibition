@@ -543,33 +543,16 @@ function updateStyles() {
 /* ══════════════════════════════════════
    BUILD DOM
 ══════════════════════════════════════ */
-function addAxisArrow(x) {
-  /* A/B 축: 위아래 쐐기 화살표 + 세로 실선 */
+function addAxisLine(x) {
+  /* A/B 축: 피그마 스펙 — border: 1px solid #000, 스테이지 전체 높이 */
   const ns = 'http://www.w3.org/2000/svg';
-  const margin = 18, ah = 9, aw = 5; /* ah=화살촉 높이, aw=너비 */
-  const top = margin, bot = stageH - margin;
-  const color = '#111', sw = '1';
-
-  const topArr = document.createElementNS(ns,'polyline');
-  topArr.setAttribute('class','svg-axis');
-  topArr.setAttribute('points',`${x-aw},${top+ah} ${x},${top} ${x+aw},${top+ah}`);
-  topArr.setAttribute('fill','none'); topArr.setAttribute('stroke',color);
-  topArr.setAttribute('stroke-width',sw); topArr.setAttribute('stroke-linejoin','miter');
-  svgEl.appendChild(topArr);
-
   const line = document.createElementNS(ns,'line');
   line.setAttribute('class','svg-axis');
-  line.setAttribute('x1',x); line.setAttribute('y1',top+ah);
-  line.setAttribute('x2',x); line.setAttribute('y2',bot-ah);
-  line.setAttribute('stroke',color); line.setAttribute('stroke-width','0.75');
+  line.setAttribute('x1', x); line.setAttribute('y1', 0);
+  line.setAttribute('x2', x); line.setAttribute('y2', stageH);
+  line.setAttribute('stroke', '#000000');
+  line.setAttribute('stroke-width', '1');
   svgEl.appendChild(line);
-
-  const botArr = document.createElementNS(ns,'polyline');
-  botArr.setAttribute('class','svg-axis');
-  botArr.setAttribute('points',`${x-aw},${bot-ah} ${x},${bot} ${x+aw},${bot-ah}`);
-  botArr.setAttribute('fill','none'); botArr.setAttribute('stroke',color);
-  botArr.setAttribute('stroke-width',sw); botArr.setAttribute('stroke-linejoin','miter');
-  svgEl.appendChild(botArr);
 }
 
 function buildDOM() {
@@ -578,9 +561,9 @@ function buildDOM() {
   linePathsA=[]; linePathsB=[]; clickPathsA=[]; clickPathsB=[];
   for (let c=0; c<3; c++) itemEls[c]=[];
 
-  /* SVG 화살표 축선 (A col, B col만) */
-  addAxisArrow(colX[0]);
-  addAxisArrow(colX[2]);
+  /* SVG 축선 (A col, B col만) — 1px solid black */
+  addAxisLine(colX[0]);
+  addAxisLine(colX[2]);
 
   for (let i=0; i<N; i++) {
     [linePathsA,linePathsB].forEach(arr => {
