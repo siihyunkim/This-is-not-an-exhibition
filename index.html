@@ -488,7 +488,7 @@ function computeLayout() {
   colX = COL_FRACS.map(f => f * stageW);
 
   /* 텍스트 실제 폭으로 A/B 축 동적 계산 */
-  const PAD = 12, GAP = 6, FS = 12, LS = -0.09 * FS;
+  const PAD = 12, GAP = 10, FS = 12, LS = -0.09 * FS;
   const cvs = document.createElement('canvas');
   const ctx = cvs.getContext('2d');
   ctx.font = '500 ' + FS + 'px "Pretendard Variable", Pretendard, sans-serif';
@@ -593,7 +593,7 @@ function buildDOM() {
     'translateX(-50%)  translateY(-50%)',
     'translateY(-50%)',
   ];
-  const GAP = 6;  /* 축 라인과 텍스트 사이 여백 */
+  const GAP = 10;  /* 축 라인과 텍스트 사이 여백 */
   const justifys   = ['flex-end','center','flex-start'];
   const textAligns = ['right','center','left'];
   const widths     = [
