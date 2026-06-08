@@ -54,21 +54,24 @@ body {
   z-index: 300; pointer-events: none;
   text-align: center;
   line-height: 1.05;
+  mix-blend-mode: difference;
 }
 #site-title h1 {
   font-family: var(--en);
   font-size: 40px;
-  font-weight: 400;      /* NHaasGroteskDSPro-55Rg */
+  font-weight: 400;
   letter-spacing: -0.04em;
   line-height: 1;
+  color: #fff;
 }
 #site-title h2 {
   font-family: var(--ko);
   font-size: 36px;
-  font-weight: 500;      /* Pretendard Medium */
+  font-weight: 500;
   letter-spacing: -0.09em;
   line-height: 1;
   margin-top: 1px;
+  color: #fff;
 }
 
 /* ── 공통 푸터 ── */
@@ -133,11 +136,9 @@ body {
    左: sticky 100vh / 右: page scroll
 ════════════════════════════════ */
 #view-detail {
-  display: block;          /* .view의 flex 무효화 */
-  height: auto;
-  min-height: 100vh;
-  position: relative;
-  overflow: visible;
+  display: block;
+  height: 100vh;
+  overflow: hidden;
 }
 /* hidden 상태 강제 — ID 선택자보다 높은 우선순위 */
 #view-detail.hidden { display: none; }
@@ -161,11 +162,10 @@ body {
 }
 
 /* 바디: 좌우 나란히, 페이지 플로우 */
-#detail-body { display: flex; align-items: flex-start; overflow: visible; }
+#detail-body { display: flex; height: 100vh; }
 
 /* ── 왼쪽 패널: sticky 100vh, 내부 스크롤 ── */
 #detail-left {
-  position: sticky; top: 0;
   flex: 0 0 50%; width: 50%;
   height: 100vh;
   overflow-y: auto; scrollbar-width: none;
@@ -249,11 +249,12 @@ body {
   grid-column: 2; grid-row: 2;
 }
 
-/* ── 오른쪽 패널: 페이지 스크롤, 이미지 풀 높이 ── */
+/* ── 오른쪽 패널: 독립 스크롤, 이미지 풀 높이 ── */
 #detail-right {
   flex: 1;
+  height: 100vh;
+  overflow-y: auto;
   background: #0d0d0d;
-  overflow: visible;
   display: flex; flex-direction: column;
   padding: 0; gap: 0;
 }
@@ -417,11 +418,11 @@ function render() {
   if (r.page === 'detail') {
     document.getElementById('view-landing').classList.add('hidden');
     document.getElementById('view-detail').classList.remove('hidden');
-    document.body.style.overflowY = 'auto';
-    window.scrollTo(0, 0);
+    document.body.style.overflowY = '';
     cl.style.display = 'block';
     cl.style.background = '#000'; /* 상세 페이지: 검정 중앙선 */
     renderDetail(r.idx);
+    document.getElementById('detail-right').scrollTop = 0;
   } else {
     document.getElementById('view-detail').classList.add('hidden');
     document.getElementById('view-landing').classList.remove('hidden');
