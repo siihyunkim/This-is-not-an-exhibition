@@ -644,8 +644,8 @@ function drawLines() {
     const isD=(activeIdx!==null && !isA);
     const color = isA ? '#000' : isD ? '#e0e0e0' : '#aaa';
     const width = isA ? '1.5' : '0.6';
-    const dA=`M 0 ${yA} L ${colX[1]} ${yM}`;
-    const dB=`M ${colX[1]} ${yM} L ${stageW} ${yB}`;
+    const dA=`M ${colX[0]} ${yA} L ${colX[1]} ${yM}`;
+    const dB=`M ${colX[1]} ${yM} L ${colX[2]} ${yB}`;
     linePathsA[i].setAttribute('d',dA); linePathsA[i].setAttribute('stroke',color); linePathsA[i].setAttribute('stroke-width',width);
     linePathsB[i].setAttribute('d',dB); linePathsB[i].setAttribute('stroke',color); linePathsB[i].setAttribute('stroke-width',width);
     clickPathsA[i].setAttribute('d',dA); clickPathsB[i].setAttribute('d',dB);
