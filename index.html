@@ -496,7 +496,23 @@ function shuffle(arr) {
 }
 function computeLayout() {
   stageW = stage.offsetWidth; stageH = stage.offsetHeight;
-  colX = COL_FRACS.map(f => f * stageW);
+  colX = COL_FRACS.map(f => f * stageW); // center(col1) 기본값
+
+  /* A/B 축 위치를 실제 텍스트 최대 폭으로 동적 계산 */
+  const PAD = 14, GAP = 3, FS = 12, LS = -0.09 * FS;
+  const cvs = document.createElement('canvas');
+  const ctx = cvs.getContext('2d');
+  ctx.font = '500 ' + FS + 'px "Pretendard Variable", Pretendard, sans-serif';
+  let maxA = 0, maxB = 0;
+  artists.forEach(ar => {
+    const wA = ctx.measureText(ar.a).width + ar.a.length * LS;
+    const wB = ctx.measureText(ar.b).width + ar.b.length * LS;
+    if (wA > maxA) maxA = wA;
+    if (wB > maxB) maxB = wB;
+  });
+  colX[0] = PAD + maxA + GAP;          // 가장 긴 A텍스트 오른쪽 3px
+  colX[2] = stageW - PAD - maxB - GAP; // 가장 긴 B텍스트 왼쪽 3px
+
   svgEl.setAttribute('viewBox',`0 0 ${stageW} ${stageH}`);
   svgEl.setAttribute('width', stageW); svgEl.setAttribute('height', stageH);
 }
@@ -701,8 +717,8 @@ function init() {
 }
 window.addEventListener('resize',()=>{ computeLayout(); buildDOM(); placeInitial(); updateStyles(); });
 
-init();
-render();
+/* 폰트 로드 후 실행 — canvas 텍스트 측정 정확도 보장 */
+document.fonts.ready.then(() => { init(); render(); });
 </script>
 </body>
 </html>
