@@ -93,7 +93,7 @@ body {
 /* 랜딩 상단 스페이서 — 고정 타이틀 높이만큼 확보 */
 #title-section {
   flex-shrink: 0;
-  height: 90px; /* top:10 + h1:40 + gap:1 + h2:36 = 87px */
+  height: 130px;
 }
 
 #stage { flex: 1; position: relative; overflow: hidden; user-select: none; }
@@ -183,7 +183,7 @@ body {
 /* 번호 사이드바 */
 #detail-sidebar {
   width: 38px; flex-shrink: 0;
-  padding: 90px 0 16px 14px; /* 90px: fixed 전시 타이틀 높이 확보 */
+  padding: 130px 0 16px 14px; /* 130px: fixed 전시 타이틀 높이 확보 */
   display: flex; flex-direction: column;
 }
 
@@ -214,7 +214,7 @@ body {
   grid-template-columns: 1fr 1fr;
   grid-template-rows: auto auto auto;
   gap: 0;
-  padding: 90px 24px 24px 0; /* 상단 90px: 전시 타이틀 확보 */
+  padding: 130px 24px 24px 0; /* 상단 130px: 전시 타이틀 확보 */
   align-content: start;
 }
 
@@ -387,7 +387,7 @@ const artistDetail = {
 };
 
 const N = artists.length;
-const COL_FRACS = [0.09, 0.50, 0.91];
+const COL_FRACS = [0.15, 0.50, 0.85];
 const PAD_V = 5;
 
 /* ══════════════════════════════════════
@@ -496,23 +496,7 @@ function shuffle(arr) {
 }
 function computeLayout() {
   stageW = stage.offsetWidth; stageH = stage.offsetHeight;
-  colX = COL_FRACS.map(f => f * stageW); // center(col1) 기본값
-
-  /* A/B 축 위치를 실제 텍스트 최대 폭으로 동적 계산 */
-  const PAD = 14, GAP = 3, FS = 12, LS = -0.09 * FS;
-  const cvs = document.createElement('canvas');
-  const ctx = cvs.getContext('2d');
-  ctx.font = '500 ' + FS + 'px "Pretendard Variable", Pretendard, sans-serif';
-  let maxA = 0, maxB = 0;
-  artists.forEach(ar => {
-    const wA = ctx.measureText(ar.a).width + ar.a.length * LS;
-    const wB = ctx.measureText(ar.b).width + ar.b.length * LS;
-    if (wA > maxA) maxA = wA;
-    if (wB > maxB) maxB = wB;
-  });
-  colX[0] = PAD + maxA + GAP;          // 가장 긴 A텍스트 오른쪽 3px
-  colX[2] = stageW - PAD - maxB - GAP; // 가장 긴 B텍스트 왼쪽 3px
-
+  colX = COL_FRACS.map(f => f * stageW);
   svgEl.setAttribute('viewBox',`0 0 ${stageW} ${stageH}`);
   svgEl.setAttribute('width', stageW); svgEl.setAttribute('height', stageH);
 }
