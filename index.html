@@ -52,26 +52,36 @@ body {
 #site-title {
   position: fixed; top: 10px; left: 0; right: 0;
   z-index: 300; pointer-events: none;
-  text-align: center;
-  line-height: 1.05;
-  mix-blend-mode: difference;
+  text-align: center; line-height: 1.05;
 }
 #site-title h1 {
-  font-family: var(--en);
-  font-size: 40px;
-  font-weight: 400;
-  letter-spacing: -0.04em;
-  line-height: 1;
-  color: #fff;
+  font-family: var(--en); font-size: 40px;
+  font-weight: 400; letter-spacing: -0.04em; line-height: 1;
+  color: #000;
 }
 #site-title h2 {
-  font-family: var(--ko);
-  font-size: 36px;
-  font-weight: 500;
-  letter-spacing: -0.09em;
-  line-height: 1;
-  margin-top: 1px;
+  font-family: var(--ko); font-size: 36px;
+  font-weight: 500; letter-spacing: -0.09em; line-height: 1;
+  margin-top: 1px; color: #000;
+}
+
+/* 상세페이지 우측 패널용 흰 타이틀 (우측 50%만 표시) */
+#site-title-inv {
+  position: fixed; top: 10px; left: 0; right: 0;
+  z-index: 301; pointer-events: none;
+  text-align: center; line-height: 1.05;
+  clip-path: inset(0 0 0 50%);
+  display: none;
+}
+#site-title-inv h1 {
+  font-family: var(--en); font-size: 40px;
+  font-weight: 400; letter-spacing: -0.04em; line-height: 1;
   color: #fff;
+}
+#site-title-inv h2 {
+  font-family: var(--ko); font-size: 36px;
+  font-weight: 500; letter-spacing: -0.09em; line-height: 1;
+  margin-top: 1px; color: #fff;
 }
 
 /* ── 공통 푸터 ── */
@@ -280,6 +290,10 @@ body {
   <h1>This is not an exhibition</h1>
   <h2>이것은 전시가 아니다</h2>
 </div>
+<div id="site-title-inv">
+  <h1>This is not an exhibition</h1>
+  <h2>이것은 전시가 아니다</h2>
+</div>
 
 <!-- ══════════════════════════════
      LANDING
@@ -415,19 +429,22 @@ function render() {
   const cl = document.getElementById('center-line');
   const h1 = document.querySelector('#site-title h1');
   const h2 = document.querySelector('#site-title h2');
+  const inv = document.getElementById('site-title-inv');
   if (r.page === 'detail') {
     document.getElementById('view-landing').classList.add('hidden');
     document.getElementById('view-detail').classList.remove('hidden');
     document.body.style.overflowY = '';
     cl.style.display = 'block';
-    cl.style.background = '#000'; /* 상세 페이지: 검정 중앙선 */
+    cl.style.background = '#000';
+    inv.style.display = 'block';
     renderDetail(r.idx);
     document.getElementById('detail-right').scrollTop = 0;
   } else {
     document.getElementById('view-detail').classList.add('hidden');
     document.getElementById('view-landing').classList.remove('hidden');
     cl.style.display = 'block';
-    cl.style.background = '#c8c8c8'; /* 랜딩: 회색 중앙선 */
+    cl.style.background = '#c8c8c8';
+    inv.style.display = 'none';
     h1.textContent = 'This is not an exhibition';
     h2.textContent = '이것은 전시가 아니다';
   }
@@ -446,6 +463,8 @@ function renderDetail(idx) {
   const titleKo = `${ar.a}${prt(ar.a)} ${ar.b}${end(ar.b)}`;
   document.querySelector('#site-title h1').textContent = titleEn;
   document.querySelector('#site-title h2').textContent = titleKo;
+  document.querySelector('#site-title-inv h1').textContent = titleEn;
+  document.querySelector('#site-title-inv h2').textContent = titleKo;
 
   document.getElementById('detail-work-en').textContent = titleEn;
   document.getElementById('detail-work-ko').textContent = titleKo;
