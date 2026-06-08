@@ -188,8 +188,8 @@ body {
 
 /* 번호 사이드바 */
 #detail-sidebar {
-  width: 47px; flex-shrink: 0;
-  padding: 130px 0 16px 14px; /* 130px: fixed 전시 타이틀 높이 확보 */
+  width: 30px; flex-shrink: 0;
+  padding: 130px 0 16px 9px;
   display: flex; flex-direction: column;
   border-right: 1px solid #e0e0e0;
 }
@@ -231,7 +231,7 @@ body {
 #artist-info { padding-left: 12px; grid-column: 1; grid-row: 1; }
 #detail-artist-name {
   font-family: var(--ko);
-  font-size: 15px; font-weight: 700;
+  font-size: 15px; font-weight: 400;
   letter-spacing: -0.09em; line-height: 1.4;
 }
 #detail-handle {
@@ -436,7 +436,7 @@ function render() {
     document.body.style.overflowY = '';
     cl.style.display = 'block';
     cl.style.background = '#000';
-    inv.style.display = 'block';
+    inv.style.display = 'none'; /* 밝기 감지 후 setupDetailScroll이 결정 */
     renderDetail(r.idx);
     document.getElementById('detail-right').scrollTop = 0;
   } else {
@@ -495,6 +495,7 @@ function renderDetail(idx) {
     dr.appendChild(mkRow([imgs[0]], '1.6'));
     dr.appendChild(mkRow(imgs.slice(1), '1'));
   }
+  setupDetailScroll();
 }
 
 function mkRow(srcs, flex) {
@@ -502,11 +503,59 @@ function mkRow(srcs, flex) {
   row.className = 'img-row'; row.style.flex = flex;
   srcs.forEach(src => {
     const box = document.createElement('div'); box.className = 'img-box';
-    if (src) { const img = document.createElement('img'); img.src = src; box.appendChild(img); }
-    else { box.textContent = 'IMAGE'; }
+    if (src) {
+      const img = document.createElement('img');
+      img.crossOrigin = 'anonymous';
+      img.src = src;
+      box.appendChild(img);
+    } else { box.textContent = 'IMAGE'; }
     row.appendChild(box);
   });
   return row;
+}
+
+/* ── 밝기 기반 타이틀 반전 ── */
+let _detailScrollHandler = null;
+
+function getTitleInvByBrightness(imgEl, cb) {
+  if (!imgEl) { cb(false); return; }
+  const check = () => {
+    try {
+      const cvs = document.createElement('canvas');
+      cvs.width = 30; cvs.height = 10;
+      const ctx = cvs.getContext('2d');
+      const iH = imgEl.naturalHeight, iW = imgEl.naturalWidth;
+      /* 이미지 상단 15% 영역 샘플 (타이틀이 위치하는 부분) */
+      ctx.drawImage(imgEl, 0, 0, iW, Math.floor(iH * 0.15), 0, 0, 30, 10);
+      const d = ctx.getImageData(0, 0, 30, 10).data;
+      let lum = 0;
+      for (let i = 0; i < d.length; i += 4)
+        lum += 0.299 * d[i] + 0.587 * d[i+1] + 0.114 * d[i+2];
+      lum /= (d.length / 4);
+      cb(lum < 140); /* 140/255 기준: 어두우면 흰 타이틀 */
+    } catch(e) { cb(false); }
+  };
+  if (imgEl.complete && imgEl.naturalWidth > 0) check();
+  else imgEl.addEventListener('load', check, { once: true });
+}
+
+function applyTitleInv(isDark) {
+  document.getElementById('site-title-inv').style.display = isDark ? 'block' : 'none';
+}
+
+function setupDetailScroll() {
+  const right = document.getElementById('detail-right');
+  if (_detailScrollHandler) right.removeEventListener('scroll', _detailScrollHandler);
+  _detailScrollHandler = function() {
+    const rowH = window.innerHeight;
+    const rowIdx = Math.round(this.scrollTop / rowH);
+    const imgs = this.querySelectorAll('.img-box img');
+    getTitleInvByBrightness(imgs[rowIdx] || null, applyTitleInv);
+  };
+  right.addEventListener('scroll', _detailScrollHandler);
+  /* 초기 로드 시 첫 번째 이미지로 검사 */
+  const firstImg = right.querySelector('.img-box img');
+  getTitleInvByBrightness(firstImg, applyTitleInv);
 }
 
 /* ══════════════════════════════════════
@@ -588,16 +637,17 @@ function updateStyles() {
 /* ══════════════════════════════════════
    BUILD DOM
 ══════════════════════════════════════ */
-function addAxisLine(x) {
-  /* A/B 축: 피그마 스펙 — border: 1px solid #000, 스테이지 전체 높이 */
+function addAxisArrow(x) {
+  /* A/B 축: 화살표 SVG (양 끝 삼각형 + 선) */
   const ns = 'http://www.w3.org/2000/svg';
-  const line = document.createElementNS(ns,'line');
-  line.setAttribute('class','svg-axis');
-  line.setAttribute('x1', x); line.setAttribute('y1', 0);
-  line.setAttribute('x2', x); line.setAttribute('y2', stageH);
-  line.setAttribute('stroke', '#000000');
-  line.setAttribute('stroke-width', '1');
-  svgEl.appendChild(line);
+  const g = document.createElementNS(ns, 'g');
+  g.setAttribute('class', 'svg-axis');
+  g.setAttribute('transform', `translate(${x - 3}, 0) scale(1, ${stageH / 850})`);
+  const path = document.createElementNS(ns, 'path');
+  path.setAttribute('d', 'M2.88684 0L8.91884e-05 5L5.77359 5L2.88684 0ZM2.8868 850L5.77356 845L5.24708e-05 845L2.8868 850ZM2.88684 4.5L2.38684 4.5L2.3868 845.5L2.8868 845.5L3.3868 845.5L3.38684 4.5L2.88684 4.5Z');
+  path.setAttribute('fill', 'black');
+  g.appendChild(path);
+  svgEl.appendChild(g);
 }
 
 function buildDOM() {
@@ -607,8 +657,8 @@ function buildDOM() {
   for (let c=0; c<3; c++) itemEls[c]=[];
 
   /* SVG 축선 (A col, B col만) — 1px solid black */
-  addAxisLine(colX[0]);
-  addAxisLine(colX[2]);
+  addAxisArrow(colX[0]);
+  addAxisArrow(colX[2]);
 
 
   for (let i=0; i<N; i++) {
