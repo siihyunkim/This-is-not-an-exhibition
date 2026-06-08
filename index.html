@@ -565,6 +565,15 @@ function buildDOM() {
   addAxisLine(colX[0]);
   addAxisLine(colX[2]);
 
+  /* 중앙 세로 회색 라인 — 페이지 꽉 */
+  const ns = 'http://www.w3.org/2000/svg';
+  const cl = document.createElementNS(ns,'line');
+  cl.setAttribute('x1', colX[1]); cl.setAttribute('y1', 0);
+  cl.setAttribute('x2', colX[1]); cl.setAttribute('y2', stageH);
+  cl.setAttribute('stroke', '#c8c8c8');
+  cl.setAttribute('stroke-width', '0.8');
+  svgEl.appendChild(cl);
+
   for (let i=0; i<N; i++) {
     [linePathsA,linePathsB].forEach(arr => {
       const p=document.createElementNS('http://www.w3.org/2000/svg','path');
