@@ -103,6 +103,13 @@ body {
 /* 랜딩 뷰 내부 스크롤 (푸터 스크롤 노출) */
 #view-landing { overflow-y: auto; }
 
+/* 중앙 세로선 — 타이틀부터 푸터까지 페이지 전체 관통 */
+#center-line {
+  position: fixed; left: 50%; top: 0; bottom: 0;
+  width: 0; border-left: 0.8px solid #c8c8c8;
+  pointer-events: none; z-index: 1;
+}
+
 .item { position: absolute; cursor: pointer; display: flex; align-items: center; }
 .item-label {
   font-size: 12px; white-space: nowrap;
@@ -273,6 +280,7 @@ body {
 <!-- ══════════════════════════════
      LANDING
 ══════════════════════════════ -->
+<div id="center-line"></div>
 <div id="view-landing" class="view">
   <div id="title-section"></div>
   <div id="stage"><svg id="svg-lines"></svg></div>
@@ -565,14 +573,6 @@ function buildDOM() {
   addAxisLine(colX[0]);
   addAxisLine(colX[2]);
 
-  /* 중앙 세로 회색 라인 — 페이지 꽉 */
-  const ns = 'http://www.w3.org/2000/svg';
-  const cl = document.createElementNS(ns,'line');
-  cl.setAttribute('x1', colX[1]); cl.setAttribute('y1', 0);
-  cl.setAttribute('x2', colX[1]); cl.setAttribute('y2', stageH);
-  cl.setAttribute('stroke', '#c8c8c8');
-  cl.setAttribute('stroke-width', '0.8');
-  svgEl.appendChild(cl);
 
   for (let i=0; i<N; i++) {
     [linePathsA,linePathsB].forEach(arr => {
