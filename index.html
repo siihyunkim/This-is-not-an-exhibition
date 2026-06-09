@@ -53,32 +53,14 @@ body {
   position: fixed; top: 10px; left: 0; right: 0;
   z-index: 300; pointer-events: none;
   text-align: center; line-height: 1.05;
+  mix-blend-mode: difference;
 }
 #site-title h1 {
   font-family: var(--en); font-size: 40px;
   font-weight: 400; letter-spacing: -0.04em; line-height: 1;
-  color: #000;
-}
-#site-title h2 {
-  font-family: var(--ko); font-size: 36px;
-  font-weight: 500; letter-spacing: -0.09em; line-height: 1;
-  margin-top: 1px; color: #000;
-}
-
-/* 상세페이지 우측 패널용 흰 타이틀 (우측 50%만 표시) */
-#site-title-inv {
-  position: fixed; top: 10px; left: 0; right: 0;
-  z-index: 301; pointer-events: none;
-  text-align: center; line-height: 1.05;
-  clip-path: inset(0 0 0 50%);
-  display: none;
-}
-#site-title-inv h1 {
-  font-family: var(--en); font-size: 40px;
-  font-weight: 400; letter-spacing: -0.04em; line-height: 1;
   color: #fff;
 }
-#site-title-inv h2 {
+#site-title h2 {
   font-family: var(--ko); font-size: 36px;
   font-weight: 500; letter-spacing: -0.09em; line-height: 1;
   margin-top: 1px; color: #fff;
@@ -299,10 +281,6 @@ body {
   <h1>This is not an exhibition</h1>
   <h2>이것은 전시가 아니다</h2>
 </div>
-<div id="site-title-inv">
-  <h1>This is not an exhibition</h1>
-  <h2>이것은 전시가 아니다</h2>
-</div>
 
 <!-- ══════════════════════════════
      LANDING
@@ -440,7 +418,6 @@ function render() {
   const cl = document.getElementById('center-line');
   const h1 = document.querySelector('#site-title h1');
   const h2 = document.querySelector('#site-title h2');
-  const inv = document.getElementById('site-title-inv');
   const clPath = document.getElementById('center-line-path');
   if (r.page === 'detail') {
     document.getElementById('view-landing').classList.add('hidden');
@@ -448,7 +425,6 @@ function render() {
     document.body.style.overflowY = '';
     cl.style.display = 'block';
     clPath.setAttribute('fill', '#000');
-    inv.style.display = 'none';
     renderDetail(r.idx);
     document.getElementById('detail-right').scrollTop = 0;
   } else {
@@ -456,7 +432,6 @@ function render() {
     document.getElementById('view-landing').classList.remove('hidden');
     cl.style.display = 'block';
     clPath.setAttribute('fill', '#c8c8c8');
-    inv.style.display = 'none';
     h1.textContent = 'This is not an exhibition';
     h2.textContent = '이것은 전시가 아니다';
   }
@@ -475,8 +450,6 @@ function renderDetail(idx) {
   const titleKo = `${ar.a}${prt(ar.a)} ${ar.b}${end(ar.b)}`;
   document.querySelector('#site-title h1').textContent = titleEn;
   document.querySelector('#site-title h2').textContent = titleKo;
-  document.querySelector('#site-title-inv h1').textContent = titleEn;
-  document.querySelector('#site-title-inv h2').textContent = titleKo;
 
   document.getElementById('detail-work-en').textContent = titleEn;
   document.getElementById('detail-work-ko').textContent = titleKo;
@@ -509,8 +482,6 @@ function renderDetail(idx) {
     dr.appendChild(mkRow([imgs[0]], '1.6'));
     dr.appendChild(mkRow(imgs.slice(1), '1'));
   }
-  setupDetailScroll();
-
   /* 사이드바 화살표 선 (랜딩과 동일한 SVG) */
   const prevArrow = document.getElementById('sidebar-arrow-svg');
   if (prevArrow) prevArrow.remove();
@@ -534,7 +505,6 @@ function mkRow(srcs, flex) {
     const box = document.createElement('div'); box.className = 'img-box';
     if (src) {
       const img = document.createElement('img');
-      img.crossOrigin = 'anonymous';
       img.src = src;
       box.appendChild(img);
     } else { box.textContent = 'IMAGE'; }
@@ -543,49 +513,6 @@ function mkRow(srcs, flex) {
   return row;
 }
 
-/* ── 밝기 기반 타이틀 반전 ── */
-let _detailScrollHandler = null;
-
-function getTitleInvByBrightness(imgEl, cb) {
-  if (!imgEl) { cb(false); return; }
-  const check = () => {
-    try {
-      const cvs = document.createElement('canvas');
-      cvs.width = 30; cvs.height = 10;
-      const ctx = cvs.getContext('2d');
-      const iH = imgEl.naturalHeight, iW = imgEl.naturalWidth;
-      /* 이미지 상단 15% 영역 샘플 (타이틀이 위치하는 부분) */
-      ctx.drawImage(imgEl, 0, 0, iW, Math.floor(iH * 0.15), 0, 0, 30, 10);
-      const d = ctx.getImageData(0, 0, 30, 10).data;
-      let lum = 0;
-      for (let i = 0; i < d.length; i += 4)
-        lum += 0.299 * d[i] + 0.587 * d[i+1] + 0.114 * d[i+2];
-      lum /= (d.length / 4);
-      cb(lum < 85); /* 85/255 기준: 확실히 어두울 때만 흰 타이틀 */
-    } catch(e) { cb(false); }
-  };
-  if (imgEl.complete && imgEl.naturalWidth > 0) check();
-  else imgEl.addEventListener('load', check, { once: true });
-}
-
-function applyTitleInv(isDark) {
-  document.getElementById('site-title-inv').style.display = isDark ? 'block' : 'none';
-}
-
-function setupDetailScroll() {
-  const right = document.getElementById('detail-right');
-  if (_detailScrollHandler) right.removeEventListener('scroll', _detailScrollHandler);
-  _detailScrollHandler = function() {
-    const rowH = window.innerHeight;
-    const rowIdx = Math.round(this.scrollTop / rowH);
-    const imgs = this.querySelectorAll('.img-box img');
-    getTitleInvByBrightness(imgs[rowIdx] || null, applyTitleInv);
-  };
-  right.addEventListener('scroll', _detailScrollHandler);
-  /* 초기 로드 시 첫 번째 이미지로 검사 */
-  const firstImg = right.querySelector('.img-box img');
-  getTitleInvByBrightness(firstImg, applyTitleInv);
-}
 
 /* ══════════════════════════════════════
    LANDING STATE
