@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>이것은 전시가 아니다</title>
+
+<!-- Pretendard Variable (Korean) -->
+<link rel="stylesheet" as="style" crossorigin
+  href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+
+<style>
+/* ── Neue Haas Grotesk Display Pro ── */
+@font-face {
+  font-family: 'NHG';
+  src: url('fonts/NHaasGroteskDSPro-15UltTh.otf') format('opentype');
+  font-weight: 100; font-style: normal;
+}
+@font-face {
+  font-family: 'NHG';
+  src: url('fonts/NHaasGroteskDSPro-25Th.otf') format('opentype');
+  font-weight: 300; font-style: normal;
+}
+@font-face {
+  font-family: 'NHG';
+  src: url('fonts/NHaasGroteskDSPro-55Rg.otf') format('opentype');
+  font-weight: 400; font-style: normal;
+}
+
+:root {
+  --en: 'NHG', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --ko: 'Pretendard Variable', Pretendard, sans-serif;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: #fff;
+  height: 100vh; width: 100vw;
+  overflow: hidden; color: #000;
+}
+
+/* ── 뷰 전환 ── */
+.view {
+  display: flex; flex-direction: column;
+  height: 100vh; width: 100vw;
+  position: absolute; top: 0; left: 0;
+}
+.view.hidden { display: none; }
+
+/* ── 전시 타이틀 (항상 고정) ── */
+#site-title {
+  position: fixed; top: 10px; left: 0; right: 0;
+  z-index: 300; pointer-events: none;
+  text-align: center; line-height: 1.05;
+  mix-blend-mode: difference;
+}
+#site-title h1 {
+  font-family: var(--en); font-size: 40px;
+  font-weight: 400; letter-spacing: -0.04em; line-height: 1;
+  color: #fff;
+}
+#site-title h2 {
+  font-family: var(--ko); font-size: 36px;
+  font-weight: 500; letter-spacing: -0.09em; line-height: 1;
+  margin-top: 1px; color: #fff;
+}
+
+/* ── 공통 푸터 ── */
+.footer-bar {
+  flex-shrink: 0;
+  display: flex; align-items: flex-end;
+  padding: 40px 20px 16px;
+  gap: 32px;
+}
+.footer-col {
+  font-family: var(--ko);
+  font-size: 8px; line-height: 1.75; color: #73FDFD;
+  letter-spacing: -0.09em;
+  white-space: nowrap;
+}
+.footer-spacer { flex: 1; }
+.footer-col.right { text-align: right; }
+
+/* ════════════════════════════════
+   LANDING
+════════════════════════════════ */
+/* 랜딩 상단 스페이서 — 고정 타이틀 높이만큼 확보 */
+#title-section {
+  flex-shrink: 0;
+  height: 130px;
+}
+
+/* 스테이지: 정확히 뷰포트 높이 - 스페이서 */
+#stage { flex: none; height: calc(100vh - 150px); position: relative; overflow: hidden; user-select: none; }
+#svg-lines { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+
+/* 랜딩 뷰 내부 스크롤 (푸터 스크롤 노출) */
+#view-landing { overflow-y: auto; }
+
+/* 중앙 세로선 — SVG 화살표 */
+#center-line {
+  position: fixed; left: calc(50% - 3px); top: 0;
+  width: 6px; height: 100vh;
+  pointer-events: none; z-index: 50;
+  display: none;
+}
+
+.item { position: absolute; cursor: pointer; display: flex; align-items: center; }
+.item-label {
+  font-size: 15px; white-space: nowrap;
+  line-height: 1;
+  display: inline-block;
+  transition: color 0.3s, font-weight 0.2s;
+}
+.item-label.ko { font-family: var(--ko); font-weight: 500; letter-spacing: -0.09em; color: #222; }
+.item-label.en { font-family: var(--en); font-weight: 500; letter-spacing: -0.05em; color: #222; }
+
+/* 선택 상태 */
+.item.active   .item-label { color: #000; font-weight: 700; }
+.item.dimmed   .item-label { color: #ccc; font-weight: 400; }
+
+/* 작업자명 컬럼: hover 시 underline → navigate 힌트 */
+.item.artist-col .item-label { cursor: pointer; }
+.item.artist-col:hover .item-label { text-decoration: underline; }
+
+/* ════════════════════════════════
+   DETAIL PAGE — split-scroll layout
+   左: sticky 100vh / 右: page scroll
+════════════════════════════════ */
+#view-detail {
+  display: block;
+  height: 100vh;
+  overflow: hidden;
+}
+/* hidden 상태 강제 — ID 선택자보다 높은 우선순위 */
+#view-detail.hidden { display: none; }
+
+/* 상세 작품 제목 — 콘텐츠 내부 상단 */
+#detail-work-title {
+  grid-column: 1 / -1; grid-row: 1;
+  padding-bottom: 20px;
+  border-bottom: 0.5px solid #e0e0e0;
+  margin-bottom: 16px;
+}
+#detail-work-en {
+  font-family: var(--en);
+  font-size: clamp(14px, 1.8vw, 26px);
+  font-weight: 400; letter-spacing: -0.05em; line-height: 1.15;
+}
+#detail-work-ko {
+  font-family: var(--ko);
+  font-size: clamp(11px, 1.4vw, 20px);
+  font-weight: 300; letter-spacing: -0.09em; margin-top: 2px;
+}
+
+/* 바디: 좌우 나란히, 페이지 플로우 */
+#detail-body { display: flex; height: 100vh; }
+
+/* ── 왼쪽 패널: sticky 100vh, 내부 스크롤 ── */
+#detail-left {
+  position: relative;
+  flex: 0 0 50%; width: 50%;
+  height: 100vh;
+  overflow-y: auto; scrollbar-width: none;
+  display: flex; flex-direction: column;
+}
+#detail-left::-webkit-scrollbar { display: none; }
+
+/* 사이드바 + 콘텐츠 가로 배치 래퍼 */
+.detail-left-inner { flex: 1; display: flex; min-height: 0; }
+
+/* 번호 사이드바 */
+#detail-sidebar {
+  position: relative;
+  width: 30px; flex-shrink: 0;
+  padding: 0 0 20px 9px;
+  display: flex; flex-direction: column;
+}
+
+/* 번호 균등 배분 래퍼 */
+#sidebar-nums {
+  flex: 1;
+  display: flex; flex-direction: column;
+  justify-content: space-between;
+  padding-top: 115px;
+}
+
+.back-btn {
+  position: absolute; top: 10px; left: 9px;
+  display: block; font-family: var(--en);
+  font-size: 11px; color: #bbb;
+  cursor: pointer; text-decoration: none;
+  transition: color 0.2s; line-height: 1;
+}
+.back-btn:hover { color: #000; }
+
+.sidebar-num {
+  display: block; font-family: var(--en);
+  font-size: 15px; line-height: 1;
+  color: #ccc; text-decoration: none;
+  cursor: pointer; transition: color 0.15s;
+  letter-spacing: -0.05em;
+}
+.sidebar-num:hover { color: #000; }
+.sidebar-num.active { color: #000; font-weight: 700; }
+
+/* 작품 제목은 고정 타이틀로 이동 — 좌패널에서 숨김 */
+#detail-work-title { display: none; }
+
+/* 콘텐츠 그리드: 좌=이름/아이디, 우=한글설명+영문설명 */
+#detail-content {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 3fr;
+  grid-template-rows: auto auto;
+  gap: 0;
+  padding: 115px 24px 24px 32px;
+  align-content: start;
+}
+
+/* 작가 정보 — 좌열 */
+#artist-info { padding-left: 12px; grid-column: 1; grid-row: 1; }
+#detail-artist-name {
+  font-family: var(--ko);
+  font-size: 15px; font-weight: 400;
+  letter-spacing: -0.09em; line-height: 1.4;
+}
+#detail-handle {
+  font-family: var(--en);
+  font-size: 15px; color: #000;
+  letter-spacing: -0.05em; margin-top: 2px;
+}
+
+/* 한글 설명 — 우열 상단 */
+#detail-desc-ko {
+  font-family: var(--ko);
+  font-size: 15px; font-weight: 400;
+  line-height: 1.55; letter-spacing: -0.09em;
+  padding-left: 12px; padding-right: 20px;
+  grid-column: 2; grid-row: 1;
+}
+
+/* 영어 설명 — 우열 하단 */
+#detail-desc-en {
+  font-family: var(--en);
+  font-size: 15px; font-weight: 400;
+  line-height: 1.55; letter-spacing: -0.02em;
+  color: #222;
+  padding-left: 12px; margin-top: 20px;
+  grid-column: 2; grid-row: 2;
+}
+
+/* ── 오른쪽 패널: 독립 스크롤, 이미지 풀 높이 ── */
+#detail-right {
+  flex: 1;
+  height: 100vh;
+  overflow-y: auto;
+  background: #0d0d0d;
+  display: flex; flex-direction: column;
+  padding: 0; gap: 0;
+}
+
+/* 이미지 행: 각각 100vh */
+.img-row { display: flex; flex-shrink: 0; min-height: 100vh; gap: 0; }
+.img-box {
+  flex: 1; overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+  background: #1a1a1a;
+  font-family: var(--en); font-size: 9px; color: #444;
+  letter-spacing: 0.1em;
+}
+.img-box img { width: 100%; height: 100%; object-fit: cover; display: block; }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════
+     전시 타이틀 (항상 고정)
+══════════════════════════════ -->
+<div id="site-title">
+  <h1>This is not an exhibition</h1>
+  <h2>이것은 전시가 아니다</h2>
+</div>
+
+<!-- ══════════════════════════════
+     LANDING
+══════════════════════════════ -->
+<svg id="center-line" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 6 850" preserveAspectRatio="none">
+  <path id="center-line-path" d="M2.88684 0L8.91884e-05 5L5.77359 5L2.88684 0ZM2.8868 850L5.77356 845L5.24708e-05 845L2.8868 850ZM2.88684 4.5L2.38684 4.5L2.3868 845.5L2.8868 845.5L3.3868 845.5L3.38684 4.5L2.88684 4.5Z" fill="#c8c8c8"/>
+</svg>
+<div id="view-landing" class="view">
+  <div id="title-section"></div>
+  <div id="stage"><svg id="svg-lines"></svg></div>
+  <footer class="footer-bar">
+    <div class="footer-col">홍익대학교 시각디자인과<br>사회문화적디자인스튜디오(3)<br>지도교수 석재원</div>
+    <div class="footer-col">개인별 워크숍 결과물 전시<br>2025년 4월 20일 (월) — 4월 24일 (금)<br>홍익대학교 홍문관 7층 R777</div>
+    <div class="footer-spacer"></div>
+    <div class="footer-col right">개인별 워크숍 결과물 전시<br>2025년 4월 20일 (월) — 4월 24일 (금)<br>홍익대학교 홍문관 7층 R777</div>
+  </footer>
+</div>
+
+<!-- ══════════════════════════════
+     DETAIL
+══════════════════════════════ -->
+<div id="view-detail" class="view hidden">
+  <div id="detail-body">
+
+    <!-- 왼쪽: sticky 패널 (사이드바 + 콘텐츠 + 푸터) -->
+    <div id="detail-left">
+      <div class="detail-left-inner">
+        <aside id="detail-sidebar">
+          <a class="back-btn" href="#">←</a>
+        </aside>
+        <div id="detail-content">
+          <!-- 작품 제목 (전체 열 span) -->
+          <div id="detail-work-title">
+            <div id="detail-work-en"></div>
+            <div id="detail-work-ko"></div>
+          </div>
+          <!-- 좌열: 이름+아이디 -->
+          <div id="artist-info">
+            <div id="detail-artist-name"></div>
+            <div id="detail-handle"></div>
+          </div>
+          <!-- 우열 상단: 한글 설명 -->
+          <div id="detail-desc-ko"></div>
+          <!-- 우열 하단: 영어 설명 (grid-row:2) -->
+          <div id="detail-desc-en"></div>
+        </div>
+      </div>
+      <!-- 푸터는 왼쪽 패널 내부 스크롤 최하단 -->
+      <footer class="footer-bar">
+        <div class="footer-col">홍익대학교 시각디자인과<br>사회문화적디자인스튜디오(3)<br>지도교수 석재원</div>
+        <div class="footer-col">개인별 워크숍 결과물 전시<br>2025년 4월 20일 (월) — 4월 24일 (금)<br>홍익대학교 홍문관 7층 R777</div>
+        <div class="footer-spacer"></div>
+        <div class="footer-col right">개인별 워크숍 결과물 전시<br>2025년 4월 20일 (월) — 4월 24일 (금)<br>홍익대학교 홍문관 7층 R777</div>
+      </footer>
+    </div>
+
+    <!-- 오른쪽: 이미지, 페이지 스크롤 -->
+    <div id="detail-right"></div>
+  </div>
+</div>
+
+<script>
+/* ══════════════════════════════════════
+   DATA
+══════════════════════════════════════ */
+const artists = [
+  { a:"모기",         name:"김세민",  b:"예술가" },
+  { a:"캡챠",         name:"여단아",  b:"로봇의 메시지" },
+  { a:"건강보조제",   name:"박장호",  b:"요약본" },
+  { a:"손씻기",       name:"김민지",  b:"비술" },
+  { a:"QR코드",       name:"배유진",  b:"자서전" },
+  { a:"입",           name:"김지원",  b:"팩스기" },
+  { a:"사거리",       name:"백단하",  b:"갤러리" },
+  { a:"슬립오버",     name:"이린",    b:"고해성사" },
+  { a:"커팅매트",     name:"황철호",  b:"해시계" },
+  { a:"세탁소",       name:"조서영",  b:"화원" },
+  { a:"스틸레토 힐",  name:"정지은",  b:"은닉무기" },
+  { a:"라바콘",       name:"김규빈",  b:"만병통치약" },
+  { a:"만두",         name:"강다현",  b:"암살자" },
+  { a:"주석",         name:"강민서",  b:"무단점유자" },
+  { a:"손톱",         name:"이지희",  b:"플레이리스트" },
+  { a:"지도",         name:"정우현",  b:"시" },
+  { a:"스케이트보드", name:"김주현",  b:"스캐너" },
+  { a:"눈",           name:"양정원",  b:"포장지" },
+  { a:"이어폰",       name:"김성재",  b:"탯줄" },
+  { a:"약봉투",       name:"현지우",  b:"어드밴트 캘린더" },
+  { a:"책",           name:"오성건",  b:"죄수" },
+  { a:"벌금 고지서",  name:"양의열",  b:"러브레터" },
+  { a:"마침표",       name:"황지원",  b:"골" },
+  { a:"쓰레기통",     name:"최주혁",  b:"자유게시판" },
+  { a:"레이빙",       name:"김시현",  b:"굿" },
+  { a:"스크린샷",     name:"김세은",  b:"소매치기" },
+  { a:"페퍼민트 캔디",name:"XU NING", b:"국제 통용 화폐" },
+];
+
+/* 작가별 상세 콘텐츠 */
+const artistDetail = {
+  16: {
+    enTitle: "Skateboard is a Scanner",
+    handle: "@3_jhn_3",
+    descKo: `길 위의 단차와 요철, 마찰과 흔들림은 도로가 지닌 정보가 되며, 보드는 길 위를 주행하며 이를 몸의 움직임으로 변환한다. 『Skateboard is a Scanner』는 19개의 바닥 이미지와 스캔된 기록을 통해, 보드를 타고 길을 읽는 감각을 전달한다.`,
+    descEn: `The differences in level, uneven textures, friction, and vibrations of the road become information held by its surface, and as the board moves across it, it translates them into bodily movement. 『Skateboard is a Scanner』 conveys the sensation of reading the road through a board, through 19 images of ground surfaces and scanned records.`,
+    images: [
+      'images/김주현_Thumbnail.jpg',
+      'images/김주현_스케이트보드_01.jpg'
+    ]
+  },
+};
+
+const N = artists.length;
+const COL_FRACS = [0.09, 0.50, 0.91]; /* 동적 계산 fallback */
+const PAD_V = 18;
+
+/* ══════════════════════════════════════
+   KOREAN GRAMMAR
+══════════════════════════════════════ */
+function hasJong(ch) {
+  const c = ch.charCodeAt(0);
+  return c >= 0xAC00 && c <= 0xD7A3 && (c - 0xAC00) % 28 !== 0;
+}
+function prt(w) { return hasJong(w[w.length-1]) ? '은' : '는'; }
+function end(w) { return hasJong(w[w.length-1]) ? '이다' : '다'; }
+
+/* ══════════════════════════════════════
+   ROUTING
+══════════════════════════════════════ */
+function getRoute() {
+  const h = window.location.hash.replace('#','');
+  const n = parseInt(h);
+  if (!isNaN(n) && n >= 1 && n <= N) return { page:'detail', idx: n-1 };
+  return { page:'landing' };
+}
+function render() {
+  const r = getRoute();
+  const cl = document.getElementById('center-line');
+  const h1 = document.querySelector('#site-title h1');
+  const h2 = document.querySelector('#site-title h2');
+  const clPath = document.getElementById('center-line-path');
+  if (r.page === 'detail') {
+    document.getElementById('view-landing').classList.add('hidden');
+    document.getElementById('view-detail').classList.remove('hidden');
+    document.body.style.overflowY = '';
+    cl.style.display = 'block';
+    clPath.setAttribute('fill', '#000');
+    renderDetail(r.idx);
+    document.getElementById('detail-right').scrollTop = 0;
+  } else {
+    document.getElementById('view-detail').classList.add('hidden');
+    document.getElementById('view-landing').classList.remove('hidden');
+    cl.style.display = 'block';
+    clPath.setAttribute('fill', '#c8c8c8');
+    wobblify(h1, 'This is not an exhibition');
+    wobblify(h2, '이것은 전시가 아니다');
+  }
+}
+window.addEventListener('hashchange', render);
+
+/* ══════════════════════════════════════
+   WOBBLY HELPER
+══════════════════════════════════════ */
+function wobblify(el, text, loose) {
+  /* loose=true: 본문처럼 자간 넓게, false/undefined: 타이틀 */
+  const spread = loose ? 12 : 8;
+  el.innerHTML = '';
+  [...text].forEach(ch => {
+    const sp = document.createElement('span');
+    sp.style.display = 'inline-block';
+    sp.style.marginRight = loose ? '0.04em' : '0.02em';
+    if (ch === ' ') {
+      sp.style.width = loose ? '0.45em' : '0.38em';
+    } else {
+      const tx  = (Math.random() * spread * 2 - spread).toFixed(1);
+      const ty  = (Math.random() * spread * 2 - spread).toFixed(1);
+      const rot = (Math.random() * spread * 2 - spread).toFixed(1);
+      sp.style.transform = `translate(${tx}%, ${ty}%) rotate(${rot}deg)`;
+    }
+    sp.textContent = ch;
+    el.appendChild(sp);
+  });
+}
+
+/* ══════════════════════════════════════
+   DETAIL RENDER
+══════════════════════════════════════ */
+function renderDetail(idx) {
+  const ar  = artists[idx];
+  const det = artistDetail[idx] || {};
+
+  /* 고정 타이틀을 작품 제목으로 교체 */
+  const titleEn = det.enTitle || `${ar.a} is a ${ar.b}`;
+  const titleKo = `${ar.a}${prt(ar.a)} ${ar.b}${end(ar.b)}`;
+  wobblify(document.querySelector('#site-title h1'), titleEn);
+  wobblify(document.querySelector('#site-title h2'), titleKo);
+
+  wobblify(document.getElementById('detail-work-en'), titleEn);
+  wobblify(document.getElementById('detail-work-ko'), titleKo);
+  wobblify(document.getElementById('detail-artist-name'), ar.name);
+  document.getElementById('detail-handle').textContent = det.handle || '';
+  if (det.descKo) wobblify(document.getElementById('detail-desc-ko'), det.descKo, true);
+  else document.getElementById('detail-desc-ko').innerHTML = '';
+  if (det.descEn) wobblify(document.getElementById('detail-desc-en'), det.descEn, true);
+  else document.getElementById('detail-desc-en').innerHTML = '';
+
+  const sb = document.getElementById('detail-sidebar');
+  sb.innerHTML = '<a class="back-btn" href="#">←</a>';
+  const numsWrap = document.createElement('div');
+  numsWrap.id = 'sidebar-nums';
+  artists.forEach((_, i) => {
+    const a = document.createElement('a');
+    a.className = 'sidebar-num' + (i === idx ? ' active' : '');
+    a.textContent = i + 1; a.href = '#' + (i + 1);
+    numsWrap.appendChild(a);
+  });
+  sb.appendChild(numsWrap);
+
+  const imgs = det.images || [];
+  const dr = document.getElementById('detail-right');
+  dr.innerHTML = '';
+  if (imgs.length === 0) {
+    dr.appendChild(mkRow([''], '1.6'));
+    dr.appendChild(mkRow(['', ''], '1'));
+  } else if (imgs.length === 1) {
+    dr.appendChild(mkRow([imgs[0]], '1'));
+  } else {
+    dr.appendChild(mkRow([imgs[0]], '1.6'));
+    dr.appendChild(mkRow(imgs.slice(1), '1'));
+  }
+
+  /* 사이드바 화살표 선 (랜딩과 동일한 SVG) */
+  const prevArrow = document.getElementById('sidebar-arrow-svg');
+  if (prevArrow) prevArrow.remove();
+  const svgNS = 'http://www.w3.org/2000/svg';
+  const saSvg = document.createElementNS(svgNS, 'svg');
+  saSvg.id = 'sidebar-arrow-svg';
+  saSvg.setAttribute('viewBox', '0 0 6 1197');
+  saSvg.setAttribute('preserveAspectRatio', 'none');
+  saSvg.style.cssText = 'position:absolute; left:27px; top:0; width:6px; height:100%; pointer-events:none; z-index:10;';
+  const saPath = document.createElementNS(svgNS, 'path');
+  saPath.setAttribute('d', 'M2.88672 0L-3.24448e-05 5L5.77347 5L2.88672 0ZM2.8868 1878L5.77355 1873L4.92081e-05 1873L2.8868 1878ZM2.88672 4.5L2.38672 4.5L2.3868 1873.5L2.8868 1873.5L3.3868 1873.5L3.38672 4.5L2.88672 4.5Z');
+  saPath.setAttribute('fill', '#D9D9D9');
+  saSvg.appendChild(saPath);
+  document.getElementById('detail-left').appendChild(saSvg);
+}
+
+function mkRow(srcs, flex) {
+  const row = document.createElement('div');
+  row.className = 'img-row'; row.style.flex = flex;
+  srcs.forEach(src => {
+    const box = document.createElement('div'); box.className = 'img-box';
+    if (src) {
+      const img = document.createElement('img');
+      img.src = src;
+      box.appendChild(img);
+    } else { box.textContent = 'IMAGE'; }
+    row.appendChild(box);
+  });
+  return row;
+}
+
+
+/* ══════════════════════════════════════
+   LANDING STATE
+══════════════════════════════════════ */
+let activeIdx = null, prevActiveIdx = -2;
+let stageW = 0, stageH = 0, colX = [];
+const pos = [new Array(N).fill(0), new Array(N).fill(0), new Array(N).fill(0)];
+const itemEls = [[], [], []];
+let linePathsA = [], linePathsB = [], clickPathsA = [], clickPathsB = [];
+
+/* wobbly: 글자 하나하나에 translate + rotate (레퍼런스: flying-letters.js 방식) */
+const wobbleData = (() => {
+  let s = 0xabcdef;
+  const lcg = () => { s = (s * 1664525 + 1013904223) & 0xffffffff; return ((s>>>16)&0x7fff)/0x7fff; };
+  const r = (min, max) => min + lcg() * (max - min);
+  return Array.from({length: 3}, () =>
+    Array.from({length: N}, () =>
+      Array.from({length: 30}, () => ({
+        tx: r(-10, 10),   /* translate X% */
+        ty: r(-10, 10),   /* translate Y% */
+        rot: r(-10, 10)   /* rotate deg */
+      }))
+    )
+  );
+})();
+
+const stage = document.getElementById('stage');
+const svgEl = document.getElementById('svg-lines');
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length-1; i > 0; i--) {
+    const j = Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+function computeLayout() {
+  stageW = stage.offsetWidth; stageH = stage.offsetHeight;
+  colX = COL_FRACS.map(f => f * stageW);
+
+  /* 텍스트 실제 폭으로 A/B 축 동적 계산 */
+  const PAD = 12, GAP = 10, FS = 15, LS = -0.09 * FS;
+  const cvs = document.createElement('canvas');
+  const ctx = cvs.getContext('2d');
+  ctx.font = '500 ' + FS + 'px "Pretendard Variable", Pretendard, sans-serif';
+  let maxA = 0, maxB = 0;
+  artists.forEach(ar => {
+    const wA = ctx.measureText(ar.a).width + ar.a.length * LS;
+    const wB = ctx.measureText(ar.b).width + ar.b.length * LS;
+    if (wA > maxA) maxA = wA;
+    if (wB > maxB) maxB = wB;
+  });
+  /* 안전 마진 1.15× (실제 렌더 vs 캔버스 차이 보정) */
+  maxA *= 1.15; maxB *= 1.15;
+  colX[0] = PAD + maxA + GAP;
+  colX[2] = stageW - PAD - maxB - GAP;
+
+  svgEl.setAttribute('viewBox',`0 0 ${stageW} ${stageH}`);
+  svgEl.setAttribute('width', stageW); svgEl.setAttribute('height', stageH);
+}
+function assignPositions(col, order) {
+  const step = N>1 ? (stageH - PAD_V*2)/(N-1) : 0;
+  order.forEach((ai, rank) => { pos[col][ai] = PAD_V + rank*step; });
+}
+
+let _lastClickTs = 0, _lastClickIdx = -1;
+function handleItemClick(idx) {
+  const now = Date.now();
+  if (now - _lastClickTs < 100 && _lastClickIdx === idx) return;
+  _lastClickTs = now;
+  _lastClickIdx = idx;
+
+  if (activeIdx === idx) {
+    window.location.hash = idx + 1;
+  } else {
+    activeIdx = idx;
+    updateStyles();
+  }
+}
+
+function updateStyles() {
+  for (let col = 0; col < 3; col++) {
+    for (let i = 0; i < N; i++) {
+      const el = itemEls[col][i]; if (!el) continue;
+      el.classList.remove('active','dimmed');
+      if (activeIdx !== null) {
+        if (i === activeIdx) el.classList.add('active');
+        else el.classList.add('dimmed');
+      }
+    }
+  }
+}
+
+/* ══════════════════════════════════════
+   BUILD DOM
+══════════════════════════════════════ */
+function addAxisArrow(x) {
+  /* A/B 축: 화살표 SVG (양 끝 삼각형 + 선) */
+  const ns = 'http://www.w3.org/2000/svg';
+  const g = document.createElementNS(ns, 'g');
+  g.setAttribute('class', 'svg-axis');
+  g.setAttribute('transform', `translate(${x - 3}, 0) scale(1, ${stageH / 850})`);
+  const path = document.createElementNS(ns, 'path');
+  path.setAttribute('d', 'M2.88684 0L8.91884e-05 5L5.77359 5L2.88684 0ZM2.8868 850L5.77356 845L5.24708e-05 845L2.8868 850ZM2.88684 4.5L2.38684 4.5L2.3868 845.5L2.8868 845.5L3.3868 845.5L3.38684 4.5L2.88684 4.5Z');
+  path.setAttribute('fill', 'black');
+  g.appendChild(path);
+  svgEl.appendChild(g);
+}
+
+function buildDOM() {
+  stage.querySelectorAll('.item').forEach(e => e.remove());
+  svgEl.innerHTML = '';
+  linePathsA=[]; linePathsB=[]; clickPathsA=[]; clickPathsB=[];
+  for (let c=0; c<3; c++) itemEls[c]=[];
+
+  /* SVG 축선 (A col, B col만) — 1px solid black */
+  addAxisArrow(colX[0]);
+  addAxisArrow(colX[2]);
+
+
+  for (let i=0; i<N; i++) {
+    [linePathsA,linePathsB].forEach(arr => {
+      const p=document.createElementNS('http://www.w3.org/2000/svg','path');
+      p.setAttribute('fill','none');
+      p.setAttribute('stroke','#aaa');
+      p.setAttribute('stroke-width','0.6');
+      svgEl.appendChild(p); arr.push(p);
+    });
+  }
+
+  for (let i=0; i<N; i++) {
+    [clickPathsA,clickPathsB].forEach(arr => {
+      const p=document.createElementNS('http://www.w3.org/2000/svg','path');
+      p.setAttribute('fill','none');
+      p.setAttribute('stroke','transparent');
+      p.setAttribute('stroke-width','14');
+      p.setAttribute('pointer-events','stroke'); p.style.cursor='pointer';
+      const ci=i; p.addEventListener('click',()=>handleItemClick(ci));
+      svgEl.appendChild(p); arr.push(p);
+    });
+  }
+
+  const PAD_SIDE = 12;
+  const transforms = [
+    'translateY(-50%)',
+    'translateX(-50%)  translateY(-50%)',
+    'translateY(-50%)',
+  ];
+  const GAP = 10;  /* 축 라인과 텍스트 사이 여백 */
+  const justifys   = ['flex-end','center','flex-start'];
+  const textAligns = ['right','center','left'];
+  const widths     = [
+    Math.max(60, colX[0] - PAD_SIDE - GAP)+'px', '110px',
+    Math.max(60, stageW - colX[2] - GAP - 4)+'px',
+  ];
+
+  for (let col=0; col<3; col++) {
+    for (let i=0; i<N; i++) {
+      const el=document.createElement('div');
+      el.className='item' + (col===1 ? ' artist-col' : '');
+      /* A col: PAD_SIDE부터, 폭은 axis까지-GAP / B col: axis+GAP부터 */
+      el.style.left=(col===0 ? PAD_SIDE : col===2 ? colX[col]+GAP : colX[col])+'px';
+      el.style.top='0px';
+      el.style.transform=transforms[col];
+      el.style.width=widths[col]; el.style.justifyContent=justifys[col];
+
+      const label=document.createElement('div');
+      label.className='item-label ko';
+      label.style.textAlign=textAligns[col];
+      const text = col===0 ? artists[i].a : col===1 ? artists[i].name : artists[i].b;
+      /* wobbly: 글자 하나하나 translate + rotate (flying-letters.js 방식) */
+      [...text].forEach((ch, ci) => {
+        const sp = document.createElement('span');
+        sp.textContent = ch;
+        sp.style.display = 'inline-block';
+        if (ch === ' ') {
+          sp.style.width = '0.35em';
+        } else {
+          const d = wobbleData[col][i][ci % 30];
+          sp.style.transform = `translate(${d.tx.toFixed(1)}%, ${d.ty.toFixed(1)}%) rotate(${d.rot.toFixed(1)}deg)`;
+        }
+        label.appendChild(sp);
+      });
+      el.appendChild(label);
+
+      const ci=i;
+      el.addEventListener('click', ()=>handleItemClick(ci));
+
+      stage.appendChild(el); itemEls[col][i]=el;
+    }
+  }
+}
+
+/* ══════════════════════════════════════
+   DRAW LINES
+══════════════════════════════════════ */
+function drawLines() {
+  for (let i=0; i<N; i++) {
+    const yA=pos[0][i], yM=pos[1][i], yB=pos[2][i];
+    const isA=(i===activeIdx);
+    const isD=(activeIdx!==null && !isA);
+    const color = isA ? '#000' : isD ? '#e0e0e0' : '#aaa';
+    const width = isA ? '1.5' : '0.6';
+    const dA=`M ${colX[0]} ${yA} L ${colX[1]} ${yM}`;
+    const dB=`M ${colX[1]} ${yM} L ${colX[2]} ${yB}`;
+    linePathsA[i].setAttribute('d',dA); linePathsA[i].setAttribute('stroke',color); linePathsA[i].setAttribute('stroke-width',width);
+    linePathsB[i].setAttribute('d',dB); linePathsB[i].setAttribute('stroke',color); linePathsB[i].setAttribute('stroke-width',width);
+    clickPathsA[i].setAttribute('d',dA); clickPathsB[i].setAttribute('d',dB);
+  }
+  if (activeIdx !== prevActiveIdx) {
+    prevActiveIdx = activeIdx;
+    if (activeIdx !== null) {
+      svgEl.appendChild(linePathsA[activeIdx]); svgEl.appendChild(linePathsB[activeIdx]);
+      svgEl.appendChild(clickPathsA[activeIdx]); svgEl.appendChild(clickPathsB[activeIdx]);
+    }
+  }
+}
+
+/* ══════════════════════════════════════
+   DRAW-IN ANIMATION
+══════════════════════════════════════ */
+const DRAW_ST=28, DRAW_DU=220;
+let drawStart=null;
+function easeOut(t){ return 1-Math.pow(1-t,2); }
+function startDrawAnim() {
+  drawStart=performance.now();
+  for (let i=0; i<N; i++) {
+    [linePathsA[i],linePathsB[i]].forEach(p=>{
+      p._len=p.getTotalLength()||1;
+      p.setAttribute('stroke-dasharray', p._len);
+      p.setAttribute('stroke-dashoffset', p._len);
+    });
+  }
+}
+function updateDrawAnim(now) {
+  if (!drawStart) return;
+  let done=true;
+  for (let i=0; i<N; i++) {
+    [[linePathsA[i],i*2],[linePathsB[i],i*2+1]].forEach(([p,seq])=>{
+      const el=now-drawStart-seq*DRAW_ST, len=p._len||1;
+      if (el<0)               { done=false; p.setAttribute('stroke-dashoffset',len); }
+      else if (el<DRAW_DU)    { done=false; p.setAttribute('stroke-dashoffset',len*(1-easeOut(el/DRAW_DU))); }
+      else                    { p.removeAttribute('stroke-dasharray'); p.removeAttribute('stroke-dashoffset'); }
+    });
+  }
+  if (done) drawStart=null;
+}
+
+/* ══════════════════════════════════════
+   RAF LOOP
+══════════════════════════════════════ */
+function rafLoop() {
+  const now=performance.now();
+  drawLines(); updateDrawAnim(now);
+  requestAnimationFrame(rafLoop);
+}
+
+/* ══════════════════════════════════════
+   INIT
+══════════════════════════════════════ */
+function placeInitial() {
+  for (let col=0; col<3; col++) {
+    const order=shuffle(Array.from({length:N},(_,i)=>i));
+    assignPositions(col,order);
+    for (let i=0; i<N; i++) {
+      if (itemEls[col][i]) {
+        itemEls[col][i].style.transition='none';
+        itemEls[col][i].style.top=pos[col][i]+'px';
+      }
+    }
+  }
+}
+function init() {
+  computeLayout(); buildDOM(); placeInitial();
+  requestAnimationFrame(()=>{
+    drawLines(); startDrawAnim();
+    requestAnimationFrame(rafLoop);
+  });
+}
+window.addEventListener('resize',()=>{ computeLayout(); buildDOM(); placeInitial(); updateStyles(); });
+
+/* 폰트 로드 후 실행 — canvas 텍스트 측정 정확도 보장 */
+document.fonts.ready.then(() => { init(); render(); });
+</script>
+</body>
+</html>
