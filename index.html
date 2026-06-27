@@ -71,12 +71,19 @@ body {
   margin-top: 1px; color: #fff;
 }
 
-/* ── 고정 푸터 (화면 왼쪽 하단) ── */
+/* ── 고정 푸터 (화면 왼쪽 하단) — 초기 숨김, 스크롤 시 노출 ── */
 #site-footer {
   position: fixed;
   bottom: 0; left: 0;
   padding: 0 20px 30px;
   z-index: 300;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+#site-footer.footer-visible {
+  opacity: 1;
+  pointer-events: auto;
 }
 #site-footer .footer-col {
   font-family: var(--ko);
@@ -107,8 +114,9 @@ body {
 #stage { flex: none; height: calc(100vh - 130px); position: relative; overflow: hidden; user-select: none; }
 #svg-lines { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 
-/* 랜딩 뷰 — 스크롤 없음 */
-#view-landing { overflow: hidden; }
+/* 랜딩 뷰 — 하단 스크롤로 푸터 노출 */
+#view-landing { overflow-y: auto; }
+#landing-spacer { flex-shrink: 0; height: 220px; }
 
 /* 중앙 세로선 — SVG 화살표 */
 #center-line {
@@ -307,6 +315,7 @@ body {
 <div id="view-landing" class="view">
   <div id="title-section"></div>
   <div id="stage"><svg id="svg-lines"></svg></div>
+  <div id="landing-spacer"></div>
 </div>
 
 <!-- ══════════════════════════════
@@ -598,6 +607,9 @@ function getRoute() {
 }
 function render() {
   const r = getRoute();
+  /* 페이지 전환 시 푸터 숨김 */
+  const sf = document.getElementById('site-footer');
+  if (sf) sf.classList.remove('footer-visible');
   const cl = document.getElementById('center-line');
   const h1 = document.querySelector('#site-title h1');
   const h2 = document.querySelector('#site-title h2');
@@ -966,11 +978,28 @@ window.addEventListener('resize',()=>{ computeLayout(); buildDOM(); placeInitial
 /* 폰트 로드 후 실행 — canvas 텍스트 측정 정확도 보장 */
 document.fonts.ready.then(() => {
   init(); render();
+
   /* 타이틀 클릭 → 초기화된 랜딩으로 */
   const siteTitle = document.getElementById('site-title');
   siteTitle.style.cursor = 'pointer';
-  siteTitle.addEventListener('click', () => {
-    window.location.hash = '';
+  siteTitle.addEventListener('click', () => { window.location.hash = ''; });
+
+  /* 푸터 스크롤 감지 */
+  const siteFooter = document.getElementById('site-footer');
+  function showFooter() { siteFooter.classList.add('footer-visible'); }
+  function hideFooter() { siteFooter.classList.remove('footer-visible'); }
+
+  /* 랜딩: 아래로 스크롤 시 노출 */
+  const landingEl = document.getElementById('view-landing');
+  landingEl.addEventListener('scroll', () => {
+    if (landingEl.scrollTop > 30) showFooter(); else hideFooter();
+  });
+
+  /* 상세: detail-left 스크롤 맨 아래 도달 시 노출 */
+  const detailLeft = document.getElementById('detail-left');
+  detailLeft.addEventListener('scroll', () => {
+    const atBottom = detailLeft.scrollTop + detailLeft.clientHeight >= detailLeft.scrollHeight - 60;
+    if (atBottom) showFooter(); else hideFooter();
   });
 });
 </script>
