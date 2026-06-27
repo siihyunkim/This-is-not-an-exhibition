@@ -192,7 +192,7 @@ body {
 /* 번호 사이드바 */
 #detail-sidebar {
   position: relative;
-  width: 30px; flex-shrink: 0;
+  width: 60px; flex-shrink: 0;
   padding: 0 0 20px 9px;
   display: flex; flex-direction: column;
 }
@@ -703,7 +703,7 @@ function renderDetail(idx) {
   saSvg.id = 'sidebar-arrow-svg';
   saSvg.setAttribute('viewBox', '0 0 6 1197');
   saSvg.setAttribute('preserveAspectRatio', 'none');
-  saSvg.style.cssText = 'position:absolute; left:27px; top:0; width:6px; height:100%; pointer-events:none; z-index:10;';
+  saSvg.style.cssText = 'position:absolute; left:57px; top:0; width:6px; height:100%; pointer-events:none; z-index:10;';
   const saPath = document.createElementNS(svgNS, 'path');
   saPath.setAttribute('d', 'M2.88672 0L-3.24448e-05 5L5.77347 5L2.88672 0ZM2.8868 1878L5.77355 1873L4.92081e-05 1873L2.8868 1878ZM2.88672 4.5L2.38672 4.5L2.3868 1873.5L2.8868 1873.5L3.3868 1873.5L3.38672 4.5L2.88672 4.5Z');
   saPath.setAttribute('fill', '#D9D9D9');
