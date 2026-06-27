@@ -199,10 +199,10 @@ body {
 
 /* 번호 균등 배분 래퍼 */
 #sidebar-nums {
-  flex: 1;
   display: flex; flex-direction: column;
-  justify-content: space-between;
+  gap: 22px;
   padding-top: 115px;
+  padding-bottom: 40px;
 }
 
 .back-btn {
@@ -231,7 +231,7 @@ body {
 #detail-content {
   flex: 1;
   display: grid;
-  grid-template-columns: 1fr 3fr;
+  grid-template-columns: 2fr 4fr;
   grid-template-rows: auto auto;
   gap: 0;
   padding: 115px 24px 24px 32px;
@@ -242,7 +242,7 @@ body {
 #artist-info { padding-left: 12px; grid-column: 1; grid-row: 1; }
 #detail-artist-name {
   font-family: var(--ko);
-  font-size: 15px; font-weight: 400;
+  font-size: 15px; font-weight: 700;
   letter-spacing: -0.09em; line-height: 1.4;
 }
 #detail-handle {
