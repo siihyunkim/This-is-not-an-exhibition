@@ -74,19 +74,16 @@ body {
 }
 
 /* ── 고정 푸터 (화면 왼쪽 하단) — 초기 숨김, 스크롤 시 노출 ── */
-#site-footer {
-  position: fixed;
-  bottom: 0; left: 0;
+.page-footer {
   padding: 0 20px 30px;
-  z-index: 300;
 }
-#site-footer .footer-col {
+.page-footer .footer-col {
   font-family: var(--ko);
   font-size: 11px; line-height: 1.75; color: #222;
   letter-spacing: -0.09em;
   white-space: nowrap;
 }
-#site-footer .footer-col.copyright {
+.page-footer .footer-col.copyright {
   font-family: var(--en);
   font-size: 10px; color: #888;
   letter-spacing: 0;
@@ -313,6 +310,10 @@ body {
   <div id="title-section"></div>
   <div id="stage"><svg id="svg-lines"></svg></div>
   <div id="landing-spacer"></div>
+  <footer class="page-footer">
+    <div class="footer-col">홍익대학교 시각디자인과<br>사회문화적디자인스튜디오3 (지도교수 석재원)<br>거짓말 워크숍 결과물 전시<br>2025년 4월 20일 (월) — 4월 24일 (금)<br>홍익대학교 홍문관 7층 R777<br>10:30 – 16:30</div>
+    <div class="footer-col copyright">2026 © Hongik University Dept. of Visual Communication Design. All Rights Reserved</div>
+  </footer>
 </div>
 
 <!-- ══════════════════════════════
@@ -345,6 +346,10 @@ body {
         </div>
       </div>
       <div id="detail-left-spacer"></div>
+      <footer class="page-footer">
+        <div class="footer-col">홍익대학교 시각디자인과<br>사회문화적디자인스튜디오3 (지도교수 석재원)<br>거짓말 워크숍 결과물 전시<br>2025년 4월 20일 (월) — 4월 24일 (금)<br>홍익대학교 홍문관 7층 R777<br>10:30 – 16:30</div>
+        <div class="footer-col copyright">2026 © Hongik University Dept. of Visual Communication Design. All Rights Reserved</div>
+      </footer>
     </div>
 
     <!-- 오른쪽: 이미지, 페이지 스크롤 -->
@@ -983,10 +988,5 @@ document.fonts.ready.then(() => {
 });
 </script>
 
-<!-- ── 고정 푸터 ── -->
-<footer id="site-footer">
-  <div class="footer-col">홍익대학교 시각디자인과<br>사회문화적디자인스튜디오3 (지도교수 석재원)<br>거짓말 워크숍 결과물 전시<br>2025년 4월 20일 (월) — 4월 24일 (금)<br>홍익대학교 홍문관 7층 R777<br>10:30 – 16:30</div>
-  <div class="footer-col copyright">2026 © Hongik University Dept. of Visual Communication Design. All Rights Reserved</div>
-</footer>
 </body>
 </html>
