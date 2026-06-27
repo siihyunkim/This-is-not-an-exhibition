@@ -64,11 +64,13 @@ body {
   font-family: var(--en); font-size: 40px;
   font-weight: 400; letter-spacing: -0.04em; line-height: 1;
   color: #fff;
+  pointer-events: auto; cursor: pointer;
 }
 #site-title h2 {
   font-family: var(--ko); font-size: 36px;
   font-weight: 500; letter-spacing: -0.09em; line-height: 1;
   margin-top: 1px; color: #fff;
+  pointer-events: auto; cursor: pointer;
 }
 
 /* ── 고정 푸터 (화면 왼쪽 하단) — 초기 숨김, 스크롤 시 노출 ── */
@@ -983,9 +985,9 @@ document.fonts.ready.then(() => {
   init(); render();
 
   /* 타이틀 클릭 → 초기화된 랜딩으로 */
-  const siteTitle = document.getElementById('site-title');
-  siteTitle.style.cursor = 'pointer';
-  siteTitle.addEventListener('click', () => { window.location.hash = ''; });
+  const goHome = () => { window.location.hash = ''; };
+  document.querySelector('#site-title h1').addEventListener('click', goHome);
+  document.querySelector('#site-title h2').addEventListener('click', goHome);
 
   /* 푸터 스크롤 감지 */
   const siteFooter = document.getElementById('site-footer');
