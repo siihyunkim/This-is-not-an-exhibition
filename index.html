@@ -30,6 +30,7 @@
 :root {
   --en: 'NHG', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   --ko: 'Pretendard Variable', Pretendard, sans-serif;
+  --title-h: clamp(100px, 11.6vh, 145px); /* 130px @ ~1120vh */
 }
 
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
@@ -61,13 +62,13 @@ body {
   mix-blend-mode: difference;
 }
 #site-title h1 {
-  font-family: var(--en); font-size: 40px;
+  font-family: var(--en); font-size: clamp(26px, 2.3vw, 56px);
   font-weight: 400; letter-spacing: -0.04em; line-height: 1;
   color: #fff;
   pointer-events: auto; cursor: pointer;
 }
 #site-title h2 {
-  font-family: var(--ko); font-size: 36px;
+  font-family: var(--ko); font-size: clamp(23px, 2.1vw, 50px);
   font-weight: 500; letter-spacing: -0.09em; line-height: 1;
   margin-top: 1px; color: #fff;
   pointer-events: auto; cursor: pointer;
@@ -99,11 +100,11 @@ body {
 /* 랜딩 상단 스페이서 — 고정 타이틀 높이만큼 확보 */
 #title-section {
   flex-shrink: 0;
-  height: 130px;
+  height: var(--title-h);
 }
 
 /* 스테이지: 정확히 뷰포트 높이 - 스페이서 */
-#stage { flex: none; height: calc(100vh - 130px); position: relative; overflow: hidden; user-select: none; }
+#stage { flex: none; height: calc(100vh - var(--title-h)); position: relative; overflow: hidden; user-select: none; }
 #svg-lines { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 
 /* 랜딩 뷰 — 하단 스크롤로 푸터 노출 */
@@ -121,7 +122,7 @@ body {
 
 .item { position: absolute; cursor: pointer; display: flex; align-items: center; }
 .item-label {
-  font-size: 15px; white-space: nowrap;
+  font-size: clamp(11px, 0.87vw, 18px); white-space: nowrap;
   line-height: 1;
   transition: color 0.3s, font-weight 0.2s;
 }
@@ -194,7 +195,7 @@ body {
   flex: 1;
   display: flex; flex-direction: column;
   justify-content: space-between;
-  padding-top: 148px;
+  padding-top: calc(var(--title-h) + 18px);
   padding-bottom: 40px;
 }
 
@@ -209,7 +210,7 @@ body {
 
 .sidebar-num {
   display: block; font-family: var(--en);
-  font-size: 15px; line-height: 1;
+  font-size: clamp(11px, 0.87vw, 17px); line-height: 1;
   color: #ccc; text-decoration: none;
   cursor: pointer; transition: color 0.15s;
   letter-spacing: -0.05em;
@@ -228,7 +229,7 @@ body {
   grid-template-columns: 2fr 4fr;
   grid-template-rows: auto auto;
   gap: 0;
-  padding: 148px 24px 24px 32px;
+  padding: calc(var(--title-h) + 18px) 24px 24px 32px;
   align-content: start;
 }
 
@@ -236,19 +237,19 @@ body {
 #artist-info { padding-left: 12px; grid-column: 1; grid-row: 1; }
 #detail-artist-name {
   font-family: var(--ko);
-  font-size: 15px; font-weight: 700;
+  font-size: clamp(12px, 0.87vw, 17px); font-weight: 700;
   letter-spacing: -0.09em; line-height: 1.4;
 }
 #detail-handle {
   font-family: var(--en);
-  font-size: 15px; color: #000;
+  font-size: clamp(12px, 0.87vw, 17px); color: #000;
   letter-spacing: -0.05em; margin-top: 2px;
 }
 
 /* 한글 설명 — 우열 상단 */
 #detail-desc-ko {
   font-family: var(--ko);
-  font-size: 15px; font-weight: 400;
+  font-size: clamp(12px, 0.87vw, 16px); font-weight: 400;
   line-height: 1.55; letter-spacing: -0.09em;
   padding-left: 12px; padding-right: 20px;
   grid-column: 2; grid-row: 1;
@@ -257,7 +258,7 @@ body {
 /* 영어 설명 — 우열 하단 */
 #detail-desc-en {
   font-family: var(--en);
-  font-size: 15px; font-weight: 400;
+  font-size: clamp(12px, 0.87vw, 16px); font-weight: 400;
   line-height: 1.55; letter-spacing: -0.02em;
   color: #222;
   padding-left: 12px; margin-top: 20px;
