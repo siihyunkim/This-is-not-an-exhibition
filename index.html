@@ -79,13 +79,6 @@ body {
   bottom: 0; left: 0;
   padding: 0 20px 30px;
   z-index: 300;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.4s ease;
-}
-#site-footer.footer-visible {
-  opacity: 1;
-  pointer-events: auto;
 }
 #site-footer .footer-col {
   font-family: var(--ko);
@@ -612,8 +605,6 @@ function getRoute() {
 }
 function render() {
   const r = getRoute();
-  const sf = document.getElementById('site-footer');
-  if (sf) sf.classList.remove('footer-visible');
   const cl = document.getElementById('center-line');
   const h1 = document.querySelector('#site-title h1');
   const h2 = document.querySelector('#site-title h2');
@@ -982,18 +973,6 @@ window.addEventListener('resize',()=>{ computeLayout(); buildDOM(); placeInitial
 /* 폰트 로드 후 실행 — canvas 텍스트 측정 정확도 보장 */
 document.fonts.ready.then(() => {
   init(); render();
-
-  /* 푸터 스크롤 감지 — 조금만 내려도 노출 */
-  const siteFooter = document.getElementById('site-footer');
-  function showFooter() { siteFooter.classList.add('footer-visible'); }
-  function hideFooter() { siteFooter.classList.remove('footer-visible'); }
-
-  document.getElementById('view-landing').addEventListener('scroll', function() {
-    if (this.scrollTop > 30) showFooter(); else hideFooter();
-  });
-  document.getElementById('detail-left').addEventListener('scroll', function() {
-    if (this.scrollTop > 30) showFooter(); else hideFooter();
-  });
 
   /* 타이틀 클릭 → 초기화된 랜딩으로 */
   const goHome = () => { window.location.hash = ''; };
