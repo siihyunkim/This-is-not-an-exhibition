@@ -162,7 +162,7 @@ body {
   grid-column: 1 / -1; grid-row: 1;
   padding-bottom: 20px;
   border-bottom: 0.5px solid #e0e0e0;
-  margin-bottom: 16px;
+  margin-bottom: 40px;
 }
 #detail-work-en {
   font-family: var(--en);
@@ -648,7 +648,7 @@ function renderDetail(idx) {
   const det = artistDetail[idx] || {};
 
   /* 고정 타이틀을 작품 제목으로 교체 */
-  const titleEn = det.enTitle || `${ar.a} is a ${ar.b}`;
+  const titleEn = (det.enTitle || `${ar.a} is a ${ar.b}`).replace(/\.$/, '');
   const titleKo = `${ar.a}${prt(ar.a)} ${ar.b}${end(ar.b)}`;
   document.querySelector('#site-title h1').textContent = titleEn;
   document.querySelector('#site-title h2').textContent = titleKo;
